@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "openai-exploration-9d32c": {
+      "hosting": {
+        "openai-exploration": [
+          "methodician-openai-exploration"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "openai-exploration-9d32c"
+  }
+}

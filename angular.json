@@ -56,7 +56,13 @@
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -97,8 +103,21 @@
             ],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {
+            "prerender": false,
+            "ssr": false,
+            "browserTarget": "openai-exploration:build:production",
+            "firebaseProject": "openai-exploration-9d32c",
+            "firebaseHostingSite": "methodician-openai-exploration"
+          }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "fe624fa7-2a5b-4d9f-bf43-7e16b8eca8bb"
   }
 }
