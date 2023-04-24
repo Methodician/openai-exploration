@@ -1,31 +1,65 @@
+// Angular
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+// NgFire
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { environment } from '../environments/environment';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideDatabase, getDatabase } from '@angular/fire/database';
+import {
+  provideDatabase,
+  getDatabase,
+  connectDatabaseEmulator,
+} from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideFunctions, getFunctions } from '@angular/fire/functions';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { provideStorage, getStorage } from '@angular/fire/storage';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+// AngularMaterial imports
+// forms
+import { MatFormFieldModule } from '@angular/material/form-field';
+// input
+import { MatInputModule } from '@angular/material/input';
+// buttons
+import { MatButtonModule } from '@angular/material/button';
+// cards
+import { MatCardModule } from '@angular/material/card';
+// list
+import { MatListModule } from '@angular/material/list';
+
+// Internal
+import { CompletionsComponent } from './components/completions/completions.component';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { environment } from '../environments/environment';
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, CompletionsComponent],
   imports: [
     BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
-    provideDatabase(() => getDatabase()),
+    provideDatabase(() => {
+      const db = getDatabase();
+      if (!environment.production) {
+        connectDatabaseEmulator(db, 'localhost', 9000);
+      }
+      return db;
+    }),
     provideFirestore(() => getFirestore()),
     provideFunctions(() => getFunctions()),
     provideMessaging(() => getMessaging()),
     provideStorage(() => getStorage()),
-    BrowserAnimationsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule,
+    MatListModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

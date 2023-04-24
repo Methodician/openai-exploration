@@ -18,8 +18,8 @@ const openaiConfig = new Configuration({
 const openai = new OpenAIApi(openaiConfig);
 
 // May adapt this to encapsulate a thread with some configs from the DB such as model, max tokens, etc.
-export const respondToNewPrompt = functions.database
-  .ref('/prompts/{promptId}/input')
+export const respondToCompletionsPrompt = functions.database
+  .ref('/completions/{promptId}/prompt')
   .onCreate(async (snapshot, context) => {
     const prompt = snapshot.val();
     if (typeof prompt !== 'string') {
@@ -35,5 +35,29 @@ export const respondToNewPrompt = functions.database
 
     const completion = response.data;
 
-    return snapshot.ref.parent!.child('completion').set(completion);
+    return snapshot.ref.parent!.child('response').set(completion);
   });
+
+//   export const respondToChatPrompt = functions.database
+//     .ref('/chat/{promptId}/prompt')
+//     .onCreate(async (snapshot, context) => {
+//         const prompt = snapshot.val();
+//         if (typeof prompt !== 'string') {
+//             throw new Error('Prompt is not a string');
+//         }
+
+//         const response = await openai.createChatCompletion({
+//             model: env.openaiModel,
+//             messages: [
+//                 {
+//                     role: 'user',
+//                 }
+//             ],
+//             max_tokens: env.maxTokens,
+//             temperature: env.temperature,
+//         });
+
+//         const completion = response.data;
+
+//         return snapshot.ref.parent!.child('completion').set(completion);
+//         }

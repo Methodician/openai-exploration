@@ -1,0 +1,27 @@
+<main>
+  <mat-card class="input-card">
+    <mat-form-field appearance="outline">
+      <mat-label> Enter a completions prompt </mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="promptText"
+        (keyup.enter)="onPrompt()"
+      ></textarea>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="onPrompt()">
+      Submit Prompt
+    </button>
+  </mat-card>
+  <mat-card class="output-card">
+    <mat-card-title>Completions</mat-card-title>
+    <mat-card-content>
+      <mat-list *ngIf="lastResponse?.choices as choices">
+        <mat-list-item *ngFor="let choice of choices">
+          <p class="choice-text">
+            {{ choice.text }}
+          </p>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</main>

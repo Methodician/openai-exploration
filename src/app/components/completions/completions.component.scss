@@ -1,0 +1,21 @@
+main {
+  display: grid;
+  justify-content: center;
+  padding: 20px;
+
+  .input-card {
+    margin-bottom: 10px;
+    max-width: 975px;
+    min-width: 450px;
+  }
+
+  .output-card {
+    display: flex;
+    flex-direction: column;
+    max-width: 975px;
+    min-width: 450px;
+    .choice-text {
+      white-space: normal;
+    }
+  }
+}
