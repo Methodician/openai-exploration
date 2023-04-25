@@ -28,14 +28,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 // list
 import { MatListModule } from '@angular/material/list';
+// icon
+import { MatIconModule } from '@angular/material/icon';
 
 // Internal
 import { CompletionsComponent } from './components/completions/completions.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
+import { ChatComponent } from './components/chat/chat.component';
 @NgModule({
-  declarations: [AppComponent, CompletionsComponent],
+  declarations: [AppComponent, CompletionsComponent, ChatComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -60,6 +63,7 @@ import { environment } from '../environments/environment';
     MatButtonModule,
     MatCardModule,
     MatListModule,
+    MatIconModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

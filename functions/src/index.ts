@@ -1,6 +1,9 @@
 import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 import { Configuration, OpenAIApi } from 'openai';
+
+admin.initializeApp();
 
 const env = {
   openaiOrg: process.env.OPENAI_ORG,
@@ -17,10 +20,21 @@ const openaiConfig = new Configuration({
 
 const openai = new OpenAIApi(openaiConfig);
 
+export const updateAvailableModels = functions.database
+  .ref('/availableModels/lastRequestDate')
+  .onUpdate(async (_) => {
+    const modelsResponse = await openai.listModels();
+    const models = modelsResponse.data.data;
+
+    const availableModelsRef = admin.database().ref('/availableModels/models');
+
+    return availableModelsRef.set(models);
+  });
+
 // May adapt this to encapsulate a thread with some configs from the DB such as model, max tokens, etc.
 export const respondToCompletionsPrompt = functions.database
   .ref('/completions/{promptId}/prompt')
-  .onCreate(async (snapshot, context) => {
+  .onCreate(async (snapshot, _) => {
     const prompt = snapshot.val();
     if (typeof prompt !== 'string') {
       throw new Error('Prompt is not a string');

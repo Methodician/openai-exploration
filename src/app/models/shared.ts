@@ -18,3 +18,12 @@ export type ExampleResponse = {
     total_tokens: number;
   };
 };
+
+export type OpenaiModel = {
+  created: number;
+  id: string;
+  object: string;
+  owned_by: string;
+  permission: any[];
+  root: string;
+};

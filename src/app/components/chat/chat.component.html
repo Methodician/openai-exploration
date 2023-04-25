@@ -1,0 +1,34 @@
+<div class="container" tabindex="0" (keydown)="onKeydown($event)">
+  <mat-card>
+    <mat-form-field appearance="fill">
+      <mat-label>Filter Options</mat-label>
+      <input type="text" matInput (change)="onSearchChange($event)" />
+    </mat-form-field>
+    <mat-selection-list
+      [multiple]="false"
+      *ngIf="filteredModels$ | async as models"
+    >
+      <mat-list-option
+        *ngFor="let model of models; let i = index"
+        (click)="onSelect(i)"
+      >
+        <h3 matLine>{{ model.id }}</h3>
+      </mat-list-option>
+    </mat-selection-list>
+  </mat-card>
+  <mat-card
+    class="model-detail"
+    *ngIf="selectedModel$ | async as selectedModel"
+  >
+    <mat-card-header>
+      <mat-card-title>{{ selectedModel.id }}</mat-card-title>
+      <mat-card-subtitle>{{
+        selectedModel.created * 1000 | date
+      }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Owned by: {{ selectedModel.owned_by }}</p>
+      <pre>Permission: {{ selectedModel.permission | json }}</pre>
+    </mat-card-content>
+  </mat-card>
+</div>

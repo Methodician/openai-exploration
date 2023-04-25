@@ -1,5 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { Database, ref, push, objectVal } from '@angular/fire/database';
+import {
+  Database,
+  ref,
+  push,
+  objectVal,
+  set,
+  listVal,
+} from '@angular/fire/database';
+import { serverTimestamp } from 'firebase/database';
+import { OpenaiModel } from '../models/shared';
 
 @Injectable({
   providedIn: 'root',
@@ -34,5 +43,20 @@ export class OpenaiService {
     const promptRef = ref(this.db, `completions/${promptKey}/response`);
 
     return objectVal(promptRef);
+  };
+
+  requestUpdatedModels = () => {
+    const modelsRequestDateRef = ref(
+      this.db,
+      `availableModels/lastRequestDate`
+    );
+
+    return set(modelsRequestDateRef, serverTimestamp());
+  };
+
+  getAvailableModels = () => {
+    const availableModelsRef = ref(this.db, `availableModels/models`);
+
+    return listVal<OpenaiModel>(availableModelsRef);
   };
 }
