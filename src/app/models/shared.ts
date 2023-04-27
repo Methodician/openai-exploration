@@ -27,3 +27,42 @@ export type OpenaiModel = {
   permission: any[];
   root: string;
 };
+
+export type ChatMessageRole = 'system' | 'user' | 'assistant';
+export type ChatMessage = {
+  role: ChatMessageRole;
+  content: string;
+  name?: string; // optional name for the user
+};
+export type ChatCompletionRequest = {
+  model: string;
+  messages: ChatMessage[];
+};
+
+export type FinishReason =
+  | 'stop' // API returned complete model output
+  | 'length' // Incomplete model output due to max_tokens parameter or token limit
+  | 'content_filter' // Omitted content due to a flag from our content filters
+  | null; // API response still in progress or incomplete
+
+export type ChatCompletionResponse = {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  usage: {
+    prompt_tokens: number; // https://platform.openai.com/docs/guides/chat/introduction provides a deep dive on counting tokens
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  choices: [
+    {
+      message: {
+        role: ChatMessageRole;
+        content: string;
+      };
+      finish_reason: FinishReason;
+      index: number;
+    }
+  ];
+};

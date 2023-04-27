@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
 import { Configuration, OpenAIApi } from 'openai';
+import { ChatMessage } from './models/generated/shared';
 
 admin.initializeApp();
 
@@ -52,26 +53,70 @@ export const respondToCompletionsPrompt = functions.database
     return snapshot.ref.parent!.child('response').set(completion);
   });
 
-//   export const respondToChatPrompt = functions.database
-//     .ref('/chat/{promptId}/prompt')
-//     .onCreate(async (snapshot, context) => {
-//         const prompt = snapshot.val();
-//         if (typeof prompt !== 'string') {
-//             throw new Error('Prompt is not a string');
-//         }
+export const respondToChatPrompt = functions
+  .runWith({ timeoutSeconds: 360 })
+  .database.ref('/chat/{threadId}/lastUserPrompt')
+  .onUpdate(async (snapshot, context) => {
+    const prompt = snapshot.after.val();
+    if (typeof prompt !== 'string') {
+      throw new Error('Prompt is not a string');
+    }
 
-//         const response = await openai.createChatCompletion({
-//             model: env.openaiModel,
-//             messages: [
-//                 {
-//                     role: 'user',
-//                 }
-//             ],
-//             max_tokens: env.maxTokens,
-//             temperature: env.temperature,
-//         });
+    const threadId = context.params.threadId;
 
-//         const completion = response.data;
+    const threadRef = admin.database().ref(`/chat/${threadId}`);
+    const thread = await threadRef.get();
+    const model = thread.val().model || env.openaiModel;
+    let messages = thread.val().messages as ChatMessage[];
+    if (!messages) {
+      messages = [];
+    }
 
-//         return snapshot.ref.parent!.child('completion').set(completion);
-//         }
+    // if (messages.length === 0) {
+    //   messages.push({
+    //     role: 'system',
+    //     content: 'Hello! I am a bot. I will respond to your messages.',
+    //   });
+    // }
+    messages.push({
+      role: 'user',
+      content: prompt,
+    });
+
+    try {
+      const response = await openai.createChatCompletion({
+        model,
+        messages,
+        // max_tokens: env.maxTokens,
+        // temperature: env.temperature,
+      });
+
+      const newMessage = response.data.choices[0].message;
+
+      if (newMessage) {
+        messages.push(newMessage);
+      }
+
+      const lastResponseRef = threadRef.child('lastResponse');
+      const messagesRef = threadRef.child('messages');
+
+      // return lastResponseRef.set(newMessage);
+
+      return Promise.all([
+        lastResponseRef.set(newMessage),
+        messagesRef.set(messages),
+      ]);
+
+      // const completion = response.data;
+
+      // return snapshot.ref.parent!.child('completion').set(completion);
+    } catch (error: any) {
+      if (error.response) {
+        console.log(error.response.status);
+        console.log(error.response.data);
+      } else {
+        console.log(error.message);
+      }
+      return null;
+    }
+  });

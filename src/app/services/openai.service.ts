@@ -8,7 +8,7 @@ import {
   listVal,
 } from '@angular/fire/database';
 import { serverTimestamp } from 'firebase/database';
-import { OpenaiModel } from '../models/shared';
+import { ChatMessage, OpenaiModel } from '../models/shared';
 
 @Injectable({
   providedIn: 'root',
@@ -39,7 +39,7 @@ export class OpenaiService {
     return promptKey;
   };
 
-  getCompletionResponse = (promptKey: string) => {
+  completionResponse$ = (promptKey: string) => {
     const promptRef = ref(this.db, `completions/${promptKey}/response`);
 
     return objectVal(promptRef);
@@ -54,9 +54,29 @@ export class OpenaiService {
     return set(modelsRequestDateRef, serverTimestamp());
   };
 
-  getAvailableModels = () => {
+  availableModels$ = () => {
     const availableModelsRef = ref(this.db, `availableModels/models`);
 
     return listVal<OpenaiModel>(availableModelsRef);
+  };
+
+  // setChatThreadSystemMessage = (threadId: string, message: string) => {
+  //   const sysMessageRef = ref(this.db, `chat/${threadId}/systemMessage`);
+  //   return set(sysMessageRef, { systemMessage: message });
+  // };
+
+  setChatThreadModel = (threadId: string, model: string) => {
+    const threadModelRef = ref(this.db, `chat/${threadId}/model`);
+    return set(threadModelRef, model);
+  };
+
+  sendChatPrompt = (threadId: string, prompt: string) => {
+    const lastPromptRef = ref(this.db, `chat/${threadId}/lastUserPrompt`);
+    return set(lastPromptRef, prompt);
+  };
+
+  chatThreadMessages$ = (threadId: string) => {
+    const messagesRef = ref(this.db, `chat/${threadId}/messages`);
+    return listVal<ChatMessage>(messagesRef);
   };
 }

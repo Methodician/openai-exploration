@@ -15,11 +15,9 @@ export class CompletionsComponent {
   onPrompt = () => {
     const promptKey = this.openaiService.sendCompletionPrompt(this.promptText);
     console.log('promptKey', promptKey);
-    this.openaiService
-      .getCompletionResponse(promptKey)
-      .subscribe((response) => {
-        console.log('response', response);
-        this.lastResponse = response;
-      });
+    this.openaiService.completionResponse$(promptKey).subscribe((response) => {
+      console.log('response', response);
+      this.lastResponse = response;
+    });
   };
 }
