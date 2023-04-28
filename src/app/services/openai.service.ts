@@ -14,6 +14,8 @@ import { ChatMessage, OpenaiModel } from '../models/shared';
   providedIn: 'root',
 })
 export class OpenaiService {
+  threadId = 'asdf1234'; // Will be dynamic and maybe elsewhere
+
   // This may be a dumb name for the service, since the server is what interacts with the OpenAI API
   private db: Database = inject(Database);
 
@@ -65,18 +67,18 @@ export class OpenaiService {
   //   return set(sysMessageRef, { systemMessage: message });
   // };
 
-  setChatThreadModel = (threadId: string, model: string) => {
-    const threadModelRef = ref(this.db, `chat/${threadId}/model`);
+  setChatThreadModel = (model: string) => {
+    const threadModelRef = ref(this.db, `chat/${this.threadId}/model`);
     return set(threadModelRef, model);
   };
 
-  sendChatPrompt = (threadId: string, prompt: string) => {
-    const lastPromptRef = ref(this.db, `chat/${threadId}/lastUserPrompt`);
+  sendChatPrompt = (prompt: string) => {
+    const lastPromptRef = ref(this.db, `chat/${this.threadId}/lastUserPrompt`);
     return set(lastPromptRef, prompt);
   };
 
-  chatThreadMessages$ = (threadId: string) => {
-    const messagesRef = ref(this.db, `chat/${threadId}/messages`);
+  chatThreadMessages$ = () => {
+    const messagesRef = ref(this.db, `chat/${this.threadId}/messages`);
     return listVal<ChatMessage>(messagesRef);
   };
 }

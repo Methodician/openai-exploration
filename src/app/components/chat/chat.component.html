@@ -1,4 +1,4 @@
-<div class="container" tabindex="0" (keydown)="onKeydown($event)">
+<div class="container">
   <mat-card class="chat-section">
     <mat-card class="message-history">
       <mat-card *ngFor="let message of messages$ | async">
@@ -13,50 +13,16 @@
     <mat-card class="prompt-box">
       <mat-form-field appearance="outline">
         <mat-label>Enter a prompt</mat-label>
-        <textarea matInput [(ngModel)]="promptText"></textarea>
+        <textarea
+          matInput
+          [(ngModel)]="promptText"
+          tabindex="0"
+          (keydown.enter)="onEnterKeyDown($event)"
+        ></textarea>
       </mat-form-field>
       <button mat-icon-button (click)="submitPrompt()">
         <mat-icon>send</mat-icon>
       </button>
     </mat-card>
   </mat-card>
-  <div class="model-selection">
-    <mat-card>
-      <mat-form-field appearance="fill">
-        <mat-label>Filter Options</mat-label>
-        <input
-          type="search"
-          autocomplete="off"
-          matInput
-          (change)="onSearchChange($event)"
-        />
-      </mat-form-field>
-      <mat-selection-list
-        [multiple]="false"
-        *ngIf="filteredModels$ | async as models"
-      >
-        <mat-list-option
-          *ngFor="let model of models; let i = index"
-          (click)="onSelect(i)"
-        >
-          <h3 matLine>{{ model.id }}</h3>
-        </mat-list-option>
-      </mat-selection-list>
-    </mat-card>
-    <mat-card
-      class="model-detail"
-      *ngIf="selectedModel$ | async as selectedModel"
-    >
-      <mat-card-header>
-        <mat-card-title>{{ selectedModel.id }}</mat-card-title>
-        <mat-card-subtitle>{{
-          selectedModel.created * 1000 | date
-        }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Owned by: {{ selectedModel.owned_by }}</p>
-        <pre>Permission: {{ selectedModel.permission | json }}</pre>
-      </mat-card-content>
-    </mat-card>
-  </div>
 </div>

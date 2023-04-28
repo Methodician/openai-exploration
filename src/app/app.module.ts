@@ -37,8 +37,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { ChatComponent } from './components/chat/chat.component';
+import { ModelSelectComponent } from './components/model-select/model-select.component';
 @NgModule({
-  declarations: [AppComponent, CompletionsComponent, ChatComponent],
+  declarations: [AppComponent, CompletionsComponent, ChatComponent, ModelSelectComponent],
   imports: [
     BrowserModule,
     FormsModule,
