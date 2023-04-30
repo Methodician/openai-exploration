@@ -56,7 +56,7 @@ export const respondToCompletionsPrompt = functions.database
 export const respondToChatPrompt = functions
   .runWith({ timeoutSeconds: 360 })
   .database.ref('/chat/{threadId}/lastUserPrompt')
-  .onUpdate(async (snapshot, context) => {
+  .onWrite(async (snapshot, context) => {
     const prompt = snapshot.after.val();
     if (typeof prompt !== 'string') {
       throw new Error('Prompt is not a string');
@@ -72,12 +72,6 @@ export const respondToChatPrompt = functions
       messages = [];
     }
 
-    // if (messages.length === 0) {
-    //   messages.push({
-    //     role: 'system',
-    //     content: 'Hello! I am a bot. I will respond to your messages.',
-    //   });
-    // }
     messages.push({
       role: 'user',
       content: prompt,
@@ -112,9 +106,11 @@ export const respondToChatPrompt = functions
       // return snapshot.ref.parent!.child('completion').set(completion);
     } catch (error: any) {
       if (error.response) {
+        console.error('error status and error data:');
         console.log(error.response.status);
         console.log(error.response.data);
       } else {
+        console.error('error message:');
         console.log(error.message);
       }
       return null;

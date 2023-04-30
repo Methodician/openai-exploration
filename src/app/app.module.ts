@@ -4,6 +4,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+// Angular-centric libraries a la carte
+import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
+
 // NgFire
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
@@ -38,14 +41,22 @@ import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { ChatComponent } from './components/chat/chat.component';
 import { ModelSelectComponent } from './components/model-select/model-select.component';
+import { MessageComponent } from './components/chat/message/message.component';
 @NgModule({
-  declarations: [AppComponent, CompletionsComponent, ChatComponent, ModelSelectComponent],
+  declarations: [
+    AppComponent,
+    CompletionsComponent,
+    ChatComponent,
+    ModelSelectComponent,
+    MessageComponent,
+  ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    HighlightModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideDatabase(() => {
@@ -66,7 +77,14 @@ import { ModelSelectComponent } from './components/model-select/model-select.com
     MatListModule,
     MatIconModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HIGHLIGHT_OPTIONS,
+      useValue: {
+        fullLibraryLoader: () => import('highlight.js'),
+      },
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

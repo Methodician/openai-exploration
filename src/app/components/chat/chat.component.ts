@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { BehaviorSubject, combineLatest, debounceTime, first, map } from 'rxjs';
 import { OpenaiService } from 'src/app/services/openai.service';
 
 @Component({
@@ -11,22 +9,9 @@ import { OpenaiService } from 'src/app/services/openai.service';
 export class ChatComponent {
   shouldSendOnEnter = true;
   messages$ = this.openaiService.chatThreadMessages$();
-  // messages$ = this.openaiService.chatThreadMessages$(this.threadId).pipe(
-  //   map((messages) => {
-  //     if (messages) {
-  //       messages.forEach((message) => {
-  //         message.content = replaceCodeBlocks(message.content);
-  //       });
-  //     }
-  //     return messages;
-  //   })
-  // );
   promptText = '';
 
-  constructor(
-    private openaiService: OpenaiService,
-    private sanitizer: DomSanitizer
-  ) {}
+  constructor(private openaiService: OpenaiService) {}
 
   ngOnInit(): void {}
 

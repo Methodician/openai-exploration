@@ -1,28 +1,22 @@
 <div class="container">
-  <mat-card class="chat-section">
-    <mat-card class="message-history">
-      <mat-card *ngFor="let message of messages$ | async">
-        <mat-card-header>
-          <mat-card-title>{{ message.role }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div>{{ message.content }}</div>
-        </mat-card-content>
-      </mat-card>
-    </mat-card>
-    <mat-card class="prompt-box">
-      <mat-form-field appearance="outline">
-        <mat-label>Enter a prompt</mat-label>
-        <textarea
-          matInput
-          [(ngModel)]="promptText"
-          tabindex="0"
-          (keydown.enter)="onEnterKeyDown($event)"
-        ></textarea>
-      </mat-form-field>
-      <button mat-icon-button (click)="submitPrompt()">
-        <mat-icon>send</mat-icon>
-      </button>
-    </mat-card>
+  <mat-card class="message-history">
+    <app-message
+      *ngFor="let message of messages$ | async"
+      [rawMessage]="message"
+    ></app-message>
+  </mat-card>
+  <mat-card class="prompt-box">
+    <mat-form-field appearance="outline">
+      <mat-label>Enter a prompt</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="promptText"
+        tabindex="0"
+        (keydown.enter)="onEnterKeyDown($event)"
+      ></textarea>
+    </mat-form-field>
+    <button mat-icon-button (click)="submitPrompt()">
+      <mat-icon>send</mat-icon>
+    </button>
   </mat-card>
 </div>

@@ -8,3 +8,98 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+// For highlight.js
+pre {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: "Fira Code", Consolas, Menlo, Monaco, "Andale Mono",
+    "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: auto;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 5px;
+}
+
+code {
+  font-family: "Fira Code", Consolas, Menlo, Monaco, "Andale Mono",
+    "Ubuntu Mono", monospace;
+  font-size: 14px;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #6a9955;
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-formula {
+  color: #c586c0;
+}
+
+.hljs-section,
+.hljs-name,
+.hljs-selector-tag,
+.hljs-decorator,
+.hljs-subst {
+  color: #dcdcaa;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #4ec9b0;
+}
+
+.hljs-tag {
+  color: #9cdcfe;
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute-name,
+.hljs-regexp,
+.hljs-link {
+  color: #d7ba7d;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-meta,
+.hljs-code {
+  color: #b5cea8;
+}
+
+.hljs-string,
+.hljs-addition,
+.hljs-title,
+.hljs-section,
+.hljs-selector-tag,
+.hljs-selector-id,
+.hljs-quote,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: #ce9178;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}
+
+.hljs-attr {
+  color: #d7ba7d;
+}

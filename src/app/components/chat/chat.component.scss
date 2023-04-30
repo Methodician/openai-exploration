@@ -1,12 +1,14 @@
 .container {
-  padding: 20px;
+  color: #fff;
 
-  .chat-section {
-    color: #fff;
+  .message-history {
+    background-color: #59697d;
+    padding: 20px;
+    gap: 20px;
+  }
 
-    .prompt-box {
-      display: flex;
-      flex-direction: row;
-    }
+  .prompt-box {
+    display: flex;
+    flex-direction: row;
   }
 }
