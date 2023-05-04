@@ -37,6 +37,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 // icon
 import { MatIconModule } from '@angular/material/icon';
+// toolbar
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 // Internal
 import { CompletionsComponent } from './components/completions/completions.component';
@@ -47,6 +49,7 @@ import { ChatComponent } from './components/chat/chat.component';
 import { ModelSelectComponent } from './components/model-select/model-select.component';
 import { MessageComponent } from './components/chat/message/message.component';
 import { HomeComponent } from './components/home/home.component';
+import { HeaderComponent } from './components/header/header.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -55,6 +58,7 @@ import { HomeComponent } from './components/home/home.component';
     ModelSelectComponent,
     MessageComponent,
     HomeComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -88,6 +92,7 @@ import { HomeComponent } from './components/home/home.component';
     MatCardModule,
     MatListModule,
     MatIconModule,
+    MatToolbarModule,
   ],
   providers: [
     {

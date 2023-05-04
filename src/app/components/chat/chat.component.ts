@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { ChatMessage } from 'src/app/models/shared';
+import { HeaderService } from 'src/app/services/header.service';
 import { OpenaiService } from 'src/app/services/openai.service';
 
 @Component({
@@ -16,6 +17,7 @@ export class ChatComponent {
   threadId?: string;
 
   constructor(
+    private headerService: HeaderService,
     private openaiService: OpenaiService,
     private activeRoute: ActivatedRoute
   ) {}
@@ -25,6 +27,7 @@ export class ChatComponent {
       const threadId = params['threadId'];
       if (threadId) {
         this.threadId = threadId;
+
         this.openaiService
           .chatThreadMessages$(threadId)
           .subscribe((messages) => {
@@ -32,17 +35,15 @@ export class ChatComponent {
               this.messages$.next(messages);
             }
           });
+
+        this.openaiService.chatThreadName$(threadId).subscribe((name) => {
+          if (name) {
+            this.headerService.setHeaderText(name);
+          }
+        });
       }
     });
   }
-
-  onEnterKeyDown = (e: Event): void => {
-    console.log(e);
-    if (this.shouldSendOnEnter) {
-      e.preventDefault();
-      this.submitPrompt();
-    }
-  };
 
   submitToAi = () => {
     if (!this.threadId) {
@@ -52,7 +53,16 @@ export class ChatComponent {
     this.openaiService.submitChatThreadToAi(this.threadId);
   };
 
-  submitPrompt(): void {
+  renameThread = () => {
+    if (!this.threadId) {
+      throw new Error('No thread id');
+    }
+    const name = prompt('Enter a new thread name, or nothing to auto generate');
+
+    this.openaiService.renameChatThread(this.threadId, name);
+  };
+
+  submitPrompt = async () => {
     if (!this.threadId) {
       throw new Error('No thread id');
     }
@@ -68,8 +78,20 @@ export class ChatComponent {
     };
     const newMessages = [...messages, newMessage];
 
-    this.openaiService.updateChatThreadMessages(newMessages, this.threadId);
-  }
+    await this.openaiService.updateChatThreadMessages(
+      newMessages,
+      this.threadId
+    );
+    this.promptText = '';
+  };
+
+  onEnterKeyDown = (e: Event): void => {
+    console.log(e);
+    if (this.shouldSendOnEnter) {
+      e.preventDefault();
+      this.submitPrompt();
+    }
+  };
 
   updateMessage = ($event: { index: number; newContent: string }) => {
     if (!this.threadId) {

@@ -1,0 +1,22 @@
+mat-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+
+  .header-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .left-nav {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .right-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}

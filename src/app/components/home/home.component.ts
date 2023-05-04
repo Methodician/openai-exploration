@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs';
+import { HeaderService } from 'src/app/services/header.service';
 import { OpenaiService } from 'src/app/services/openai.service';
 
 @Component({
@@ -11,7 +12,15 @@ import { OpenaiService } from 'src/app/services/openai.service';
 export class HomeComponent {
   threads$ = this.openaiService.availableThreads$();
 
-  constructor(private openaiService: OpenaiService, private router: Router) {}
+  constructor(
+    private headerService: HeaderService,
+    private openaiService: OpenaiService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.headerService.setHeaderText('GPT Pro');
+  }
 
   createNewThread = () => {
     const threadId$ = this.openaiService.createNewThread$();

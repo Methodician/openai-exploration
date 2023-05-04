@@ -92,11 +92,6 @@ export class OpenaiService {
     return set(threadModelRef, model);
   };
 
-  chatThread$ = (threadId: string) => {
-    const threadRef = ref(this.db, this.threadPath(threadId));
-    return objectVal<ChatCompletionRequest>(threadRef);
-  };
-
   submitChatThreadToAi = (threadId: string) =>
     httpsCallable(this.functions, 'submitChatThread')({ threadId });
 
@@ -105,8 +100,21 @@ export class OpenaiService {
     return set(messagesRef, messages);
   };
 
+  renameChatThread = (threadId: string, name: string | null) =>
+    httpsCallable(this.functions, 'renameChatThread')({ threadId, name });
+
+  chatThread$ = (threadId: string) => {
+    const threadRef = ref(this.db, this.threadPath(threadId));
+    return objectVal<ChatCompletionRequest>(threadRef);
+  };
+
   chatThreadMessages$ = (threadId: string) => {
     const messagesRef = ref(this.db, this.messagesPath(threadId));
     return listVal<ChatMessage>(messagesRef);
+  };
+
+  chatThreadName$ = (threadId: string) => {
+    const chatNameRef = ref(this.db, `${this.chatPath(threadId)}/name`);
+    return objectVal<string>(chatNameRef);
   };
 }

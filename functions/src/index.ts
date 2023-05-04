@@ -45,9 +45,56 @@ export const createNewChatThread = functions.https.onCall(async () => {
       },
     ],
   };
-  const sessionRef = admin.database().ref('/chat').push({ thread: request });
+  const sessionRef = admin
+    .database()
+    .ref('/chat')
+    .push({ thread: request, name: 'Unnamed Thread' });
   return sessionRef.key;
 });
+
+export const renameChatThread = functions.https.onCall(
+  async (data, context) => {
+    const { threadId, name } = data as { threadId: string; name?: string };
+    let newName = name || '';
+    if (!threadId) {
+      throw new Error('No thread id');
+    }
+    if (!name) {
+      const threadRef = admin.database().ref(`/chat/${threadId}/thread`);
+      const threadSnap = await threadRef.get();
+      const thread = threadSnap.val();
+      // add a final user message to the thread
+      thread.messages.push({
+        role: 'user',
+        content:
+          'Please come up with a creative and succinct description for this session. It can be a word, words, or a phrase. It must be between 5 and 21 characters, and should succinctly describe the purpose of the session. Respond only with the new name you invented and nothing else. ',
+      });
+
+      try {
+        const aiResponse = await openai.createChatCompletion(thread);
+        const responseData = aiResponse.data;
+        const newMessageContent = responseData.choices[0].message?.content;
+        if (!newMessageContent) {
+          throw new Error('No message returned from OpenAI');
+        }
+        newName = newMessageContent;
+      } catch (error: any) {
+        if (error.response) {
+          console.error('error status and error data:');
+          console.log(error.response.status);
+          console.log(error.response.data);
+        } else {
+          console.error('error message:');
+          console.log(error.message);
+        }
+        return null;
+      }
+    }
+
+    const sessionNameRef = admin.database().ref(`/chat/${threadId}/name`);
+    return sessionNameRef.set(newName);
+  }
+);
 
 export const submitChatThread = functions
   .runWith({ timeoutSeconds: 360 })
