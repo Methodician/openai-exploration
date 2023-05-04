@@ -37,6 +37,15 @@ export type ChatMessage = {
 export type ChatCompletionRequest = {
   model: string;
   messages: ChatMessage[];
+  temperature?: number;
+  top_p?: number;
+  n?: number;
+  stream?: boolean;
+  stop?: string[] | string;
+  presence_penalty?: number;
+  frequency_penalty?: number;
+  logit_bias?: { [key: string]: number };
+  user?: string;
 };
 
 export type FinishReason =

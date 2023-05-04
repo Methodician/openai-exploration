@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
 import { Configuration, OpenAIApi } from 'openai';
-import { ChatMessage } from './models/generated/shared';
+import { ChatCompletionRequest } from './models/generated/shared';
 
 admin.initializeApp();
 
@@ -32,78 +32,51 @@ export const updateAvailableModels = functions.database
     return availableModelsRef.set(models);
   });
 
-// May adapt this to encapsulate a thread with some configs from the DB such as model, max tokens, etc.
-export const respondToCompletionsPrompt = functions.database
-  .ref('/completions/{promptId}/prompt')
-  .onCreate(async (snapshot, _) => {
-    const prompt = snapshot.val();
-    if (typeof prompt !== 'string') {
-      throw new Error('Prompt is not a string');
-    }
+// Might actually save these to Firestore instead of Realtime Database, but maybe just for long-term?
+// I think in a prod app each user might have a single active thread in rtdb, and then a history of threads in firestore
+export const createNewChatThread = functions.https.onCall(async () => {
+  // Here I would probably track the user's ID and create a new thread for them
+  const request: ChatCompletionRequest = {
+    model: env.openaiModel,
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a helpful AI assistant.',
+      },
+    ],
+  };
+  const sessionRef = admin.database().ref('/chat').push({ thread: request });
+  return sessionRef.key;
+});
 
-    const response = await openai.createCompletion({
-      model: env.openaiModel,
-      prompt,
-      max_tokens: env.maxTokens,
-      temperature: env.temperature,
-    });
-
-    const completion = response.data;
-
-    return snapshot.ref.parent!.child('response').set(completion);
-  });
-
-export const respondToChatPrompt = functions
+export const submitChatThread = functions
   .runWith({ timeoutSeconds: 360 })
-  .database.ref('/chat/{threadId}/lastUserPrompt')
-  .onWrite(async (snapshot, context) => {
-    const prompt = snapshot.after.val();
-    if (typeof prompt !== 'string') {
-      throw new Error('Prompt is not a string');
+  .https.onCall(async (data, context) => {
+    const { threadId } = data;
+    if (!threadId) {
+      throw new Error('No thread id');
     }
 
-    const threadId = context.params.threadId;
-
-    const threadRef = admin.database().ref(`/chat/${threadId}`);
-    const thread = await threadRef.get();
-    const model = thread.val().model || env.openaiModel;
-    let messages = thread.val().messages as ChatMessage[];
-    if (!messages) {
-      messages = [];
-    }
-
-    messages.push({
-      role: 'user',
-      content: prompt,
-    });
+    const threadRef = admin.database().ref(`/chat/${threadId}/thread`);
+    const threadSnap = await threadRef.get();
+    const thread = threadSnap.val();
 
     try {
-      const response = await openai.createChatCompletion({
-        model,
-        messages,
-        // max_tokens: env.maxTokens,
-        // temperature: env.temperature,
-      });
-
-      const newMessage = response.data.choices[0].message;
-
-      if (newMessage) {
-        messages.push(newMessage);
+      const response = await openai.createChatCompletion(thread);
+      const responseData = response.data;
+      const newMessage = responseData.choices[0].message;
+      if (!newMessage) {
+        throw new Error('No message returned from OpenAI');
       }
 
-      const lastResponseRef = threadRef.child('lastResponse');
+      thread.messages.push(newMessage);
       const messagesRef = threadRef.child('messages');
-
-      // return lastResponseRef.set(newMessage);
+      const lastResponseRef = threadRef.parent!.child('lastApiResponse');
 
       return Promise.all([
-        lastResponseRef.set(newMessage),
-        messagesRef.set(messages),
+        lastResponseRef.set(responseData),
+        messagesRef.set(thread.messages),
       ]);
-
-      // const completion = response.data;
-
-      // return snapshot.ref.parent!.child('completion').set(completion);
     } catch (error: any) {
       if (error.response) {
         console.error('error status and error data:');

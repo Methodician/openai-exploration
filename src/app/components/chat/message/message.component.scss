@@ -1,0 +1,26 @@
+.wrapper {
+  position: relative;
+
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .edit-icon,
+  .send-icon {
+    cursor: pointer;
+  }
+
+  .options {
+    display: none;
+  }
+}
+
+.wrapper:hover .options {
+  display: inline-block;
+}

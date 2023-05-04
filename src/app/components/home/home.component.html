@@ -1,0 +1,21 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title> Available Threads </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-list>
+      <mat-list-item *ngFor="let thread of threads$ | async">
+        <a [routerLink]="['/chat', thread.key]">
+          <button mat-raised-button color="primary">
+            {{ thread.name || "Unnamed Thread" }}
+          </button>
+        </a>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="createNewThread()">
+      New Thread
+    </button>
+  </mat-card-actions>
+</mat-card>

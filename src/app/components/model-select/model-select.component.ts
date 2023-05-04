@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { BehaviorSubject, combineLatest, debounceTime, first, map } from 'rxjs';
 import { OpenaiService } from 'src/app/services/openai.service';
 
@@ -8,6 +8,7 @@ import { OpenaiService } from 'src/app/services/openai.service';
   styleUrls: ['./model-select.component.scss'],
 })
 export class ModelSelectComponent {
+  @Input() threadId?: string;
   modelSearchText$ = new BehaviorSubject<string>(''); // the search query
   models$ = this.openaiService.availableModels$(); // assuming your models are of type any
   filteredModels$ = combineLatest([this.models$, this.modelSearchText$]).pipe(
@@ -55,8 +56,11 @@ export class ModelSelectComponent {
     this.selectedModelIndex$.next(index); // set the selected model when an option is clicked
     const currentModel = this.selectedModel$.pipe(first());
     currentModel.subscribe((model) => {
+      if (!this.threadId) {
+        throw new Error('No thread id');
+      }
       if (model) {
-        this.openaiService.setChatThreadModel(model.id);
+        this.openaiService.setChatThreadModel(model.id, this.threadId);
       }
     });
   }

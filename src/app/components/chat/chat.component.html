@@ -1,8 +1,11 @@
 <div class="container">
   <mat-card class="message-history">
     <app-message
-      *ngFor="let message of messages$ | async"
+      *ngFor="let message of messages$ | async; index as i"
       [rawMessage]="message"
+      [index]="i"
+      (onMessageUpdate)="updateMessage($event)"
+      (onMessageDelete)="deleteMessage($event)"
     ></app-message>
   </mat-card>
   <mat-card class="prompt-box">
@@ -17,6 +20,9 @@
     </mat-form-field>
     <button mat-icon-button (click)="submitPrompt()">
       <mat-icon>send</mat-icon>
+    </button>
+    <button mat-icon-button (click)="submitToAi()">
+      <mat-icon>send_and_archive</mat-icon>
     </button>
   </mat-card>
 </div>

@@ -16,7 +16,11 @@ import {
   connectDatabaseEmulator,
 } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { provideFunctions, getFunctions } from '@angular/fire/functions';
+import {
+  provideFunctions,
+  getFunctions,
+  connectFunctionsEmulator,
+} from '@angular/fire/functions';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 
@@ -42,6 +46,7 @@ import { environment } from '../environments/environment';
 import { ChatComponent } from './components/chat/chat.component';
 import { ModelSelectComponent } from './components/model-select/model-select.component';
 import { MessageComponent } from './components/chat/message/message.component';
+import { HomeComponent } from './components/home/home.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -49,6 +54,7 @@ import { MessageComponent } from './components/chat/message/message.component';
     ChatComponent,
     ModelSelectComponent,
     MessageComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,7 +73,13 @@ import { MessageComponent } from './components/chat/message/message.component';
       return db;
     }),
     provideFirestore(() => getFirestore()),
-    provideFunctions(() => getFunctions()),
+    provideFunctions(() => {
+      const functions = getFunctions();
+      if (!environment.production) {
+        connectFunctionsEmulator(functions, 'localhost', 5001);
+      }
+      return functions;
+    }),
     provideMessaging(() => getMessaging()),
     provideStorage(() => getStorage()),
     MatFormFieldModule,

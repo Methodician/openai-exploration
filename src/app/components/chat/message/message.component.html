@@ -3,15 +3,30 @@
     <mat-card-title>
       {{ message?.role }}
     </mat-card-title>
+    <div class="options" *ngIf="!isEditing">
+      <mat-icon class="edit-icon" (click)="isEditing = true"> edit </mat-icon>
+      <mat-icon class="delete-icon" (click)="deleteMessage()">delete</mat-icon>
+    </div>
   </mat-card-header>
   <mat-card-content>
-    <ng-container *ngFor="let segment of message?.segments">
-      <ng-container [ngSwitch]="segment.type">
-        <span *ngSwitchCase="'text'" [innerHtml]="segment.content"></span>
-        <pre *ngSwitchCase="'code'">
-            <code  [highlight]="segment.content"></code>
-        </pre>
+    <ng-container *ngIf="!isEditing">
+      <ng-container *ngFor="let segment of message?.segments">
+        <ng-container [ngSwitch]="segment.type">
+          <span *ngSwitchCase="'text'" [innerHtml]="segment.content"></span>
+          <pre *ngSwitchCase="'code'">
+              <code  [highlight]="segment.content"></code>
+          </pre>
+        </ng-container>
       </ng-container>
+    </ng-container>
+    <ng-container *ngIf="isEditing">
+      <mat-form-field appearance="outline">
+        <mat-label>Enter a prompt</mat-label>
+        <textarea matInput [(ngModel)]="rawContent"></textarea>
+      </mat-form-field>
+      <button mat-icon-button (click)="updateMessage()">
+        <mat-icon>save</mat-icon>
+      </button>
     </ng-container>
   </mat-card-content>
 </mat-card>

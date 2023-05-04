@@ -8,18 +8,34 @@ import {
   listVal,
 } from '@angular/fire/database';
 import { serverTimestamp } from 'firebase/database';
-import { ChatMessage, OpenaiModel } from '../models/shared';
+import {
+  ChatCompletionRequest,
+  ChatMessage,
+  OpenaiModel,
+} from '../models/shared';
+import {
+  Functions,
+  httpsCallable,
+  httpsCallableData,
+} from '@angular/fire/functions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OpenaiService {
-  threadId = 'asdf1234'; // Will be dynamic and maybe elsewhere
-
   // This may be a dumb name for the service, since the server is what interacts with the OpenAI API
   private db: Database = inject(Database);
+  private functions = inject(Functions);
 
   constructor() {}
+
+  private chatPath = (threadId: string) => `chat/${threadId}`;
+  private threadPath = (threadId: string) =>
+    `${this.chatPath(threadId)}/thread`;
+  private messagesPath = (threadId: string) =>
+    `${this.threadPath(threadId)}/messages`;
+  private threadModelPath = (threadId: string) =>
+    `${this.threadPath(threadId)}/model`;
 
   sendCompletionPrompt = (
     prompt: string
@@ -62,23 +78,35 @@ export class OpenaiService {
     return listVal<OpenaiModel>(availableModelsRef);
   };
 
-  // setChatThreadSystemMessage = (threadId: string, message: string) => {
-  //   const sysMessageRef = ref(this.db, `chat/${threadId}/systemMessage`);
-  //   return set(sysMessageRef, { systemMessage: message });
-  // };
+  availableThreads$ = () => {
+    const threadsRef = ref(this.db, `chat`);
 
-  setChatThreadModel = (model: string) => {
-    const threadModelRef = ref(this.db, `chat/${this.threadId}/model`);
+    return listVal<any>(threadsRef, { keyField: 'key' });
+  };
+
+  createNewThread$ = () =>
+    httpsCallableData<any>(this.functions, 'createNewChatThread')();
+
+  setChatThreadModel = (model: string, threadId: string) => {
+    const threadModelRef = ref(this.db, this.threadModelPath(threadId));
     return set(threadModelRef, model);
   };
 
-  sendChatPrompt = (prompt: string) => {
-    const lastPromptRef = ref(this.db, `chat/${this.threadId}/lastUserPrompt`);
-    return set(lastPromptRef, prompt);
+  chatThread$ = (threadId: string) => {
+    const threadRef = ref(this.db, this.threadPath(threadId));
+    return objectVal<ChatCompletionRequest>(threadRef);
   };
 
-  chatThreadMessages$ = () => {
-    const messagesRef = ref(this.db, `chat/${this.threadId}/messages`);
+  submitChatThreadToAi = (threadId: string) =>
+    httpsCallable(this.functions, 'submitChatThread')({ threadId });
+
+  updateChatThreadMessages = (messages: ChatMessage[], threadId: string) => {
+    const messagesRef = ref(this.db, this.messagesPath(threadId));
+    return set(messagesRef, messages);
+  };
+
+  chatThreadMessages$ = (threadId: string) => {
+    const messagesRef = ref(this.db, this.messagesPath(threadId));
     return listVal<ChatMessage>(messagesRef);
   };
 }

@@ -1,14 +1,25 @@
 .container {
+  position: relative;
+  height: calc(100vh - 64px);
+  display: grid;
+  grid-template-rows: 1fr auto;
   color: #fff;
 
   .message-history {
     background-color: #59697d;
     padding: 20px;
     gap: 20px;
+    overflow-y: auto;
   }
 
   .prompt-box {
+    // position: fixed;
     display: flex;
     flex-direction: row;
+    padding: 20px;
+
+    mat-form-field {
+      flex: 1;
+    }
   }
 }
