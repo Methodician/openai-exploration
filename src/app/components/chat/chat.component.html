@@ -1,7 +1,11 @@
 <div class="container">
   <mat-card class="message-history">
     <app-message
-      *ngFor="let message of messages$ | async; index as i"
+      *ngFor="
+        let message of messages$ | async;
+        index as i;
+        trackBy: trackMessagesByContent
+      "
       [rawMessage]="message"
       [index]="i"
       (onMessageUpdate)="updateMessage($event)"
@@ -18,14 +22,21 @@
         (keydown.enter)="onEnterKeyDown($event)"
       ></textarea>
     </mat-form-field>
-    <button mat-icon-button (click)="submitPrompt()">
-      <mat-icon>send</mat-icon>
-    </button>
-    <button mat-icon-button (click)="submitToAi()">
-      <mat-icon>send_and_archive</mat-icon>
-    </button>
-    <button mat-icon-button (click)="renameThread()">
-      <mat-icon>autorenew</mat-icon>
-    </button>
+    <div class="prompt-actions">
+      <div class="prompt-action-row">
+        <button class="submit-prompt" mat-icon-button (click)="submitPrompt()">
+          <mat-icon>send</mat-icon>
+        </button>
+        <button mat-icon-button (click)="submitToAi()">
+          <mat-icon>send_and_archive</mat-icon>
+        </button>
+      </div>
+      <div class="prompt-action-row">
+        <button mat-icon-button (click)="renameThread()">
+          <mat-icon>autorenew</mat-icon>
+        </button>
+        <span>{{ totalTokens$ | async }}</span>
+      </div>
+    </div>
   </mat-card>
 </div>

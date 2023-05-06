@@ -6,6 +6,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { ChatMessage } from 'src/app/models/shared';
+import { TokenService } from 'src/app/token.service';
 
 @Component({
   selector: 'app-message',
@@ -20,6 +21,7 @@ export class MessageComponent {
     newContent: string;
   }>();
   @Output() onMessageDelete = new EventEmitter<number>();
+  tokenCount = 0;
   isEditing = false;
   message?: {
     role: 'user' | 'assistant' | 'system';
@@ -27,17 +29,22 @@ export class MessageComponent {
   };
   rawContent?: string;
 
-  constructor() {}
+  constructor(private tokenService: TokenService) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
     const messageChanges = changes['rawMessage'];
     if (messageChanges) {
-      this.rawContent = messageChanges.currentValue.content;
+      const val = messageChanges.currentValue;
+      if (!val || val.content === this.rawContent) return;
+      this.rawContent = val.content;
       const { segments } = this.extractSegments(
         messageChanges.currentValue.content
       );
       this.message = { ...messageChanges.currentValue, segments };
+      setTimeout(() => {
+        // Makes the messages appear immediately without counts
+        this.tokenCount = this.tokenService.countTokens(val);
+      }, 0);
     }
   }
 

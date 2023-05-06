@@ -3,6 +3,9 @@
     <mat-card-title>
       {{ message?.role }}
     </mat-card-title>
+    <div class="token-info">
+      <span class="token-count">{{ tokenCount }}</span>
+    </div>
     <div class="options" *ngIf="!isEditing">
       <mat-icon class="edit-icon" (click)="isEditing = true"> edit </mat-icon>
       <mat-icon class="delete-icon" (click)="deleteMessage()">delete</mat-icon>

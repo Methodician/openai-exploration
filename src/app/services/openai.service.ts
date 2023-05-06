@@ -108,13 +108,13 @@ export class OpenaiService {
     return objectVal<ChatCompletionRequest>(threadRef);
   };
 
-  chatThreadMessages$ = (threadId: string) => {
-    const messagesRef = ref(this.db, this.messagesPath(threadId));
-    return listVal<ChatMessage>(messagesRef);
-  };
-
   chatThreadName$ = (threadId: string) => {
     const chatNameRef = ref(this.db, `${this.chatPath(threadId)}/name`);
     return objectVal<string>(chatNameRef);
   };
+
+  // chatThreadModel$ = (threadId: string) => {
+  //   const threadModelRef = ref(this.db, this.threadModelPath(threadId));
+  //   return objectVal<string>(threadModelRef);
+  // };
 }

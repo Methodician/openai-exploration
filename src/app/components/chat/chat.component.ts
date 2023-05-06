@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { ChatMessage } from 'src/app/models/shared';
 import { HeaderService } from 'src/app/services/header.service';
 import { OpenaiService } from 'src/app/services/openai.service';
+import { TokenService } from 'src/app/token.service';
 
 @Component({
   selector: 'app-chat',
@@ -13,14 +14,19 @@ import { OpenaiService } from 'src/app/services/openai.service';
 export class ChatComponent {
   shouldSendOnEnter = true;
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
+  model = 'gpt-4';
   promptText = '';
   threadId?: string;
+  totalTokens$ = this.tokenService.totalTokens$;
 
   constructor(
     private headerService: HeaderService,
     private openaiService: OpenaiService,
+    private tokenService: TokenService,
     private activeRoute: ActivatedRoute
-  ) {}
+  ) {
+    this.tokenService.resetTokenCounts();
+  }
 
   ngOnInit(): void {
     this.activeRoute.params.subscribe((params) => {
@@ -28,14 +34,12 @@ export class ChatComponent {
       if (threadId) {
         this.threadId = threadId;
 
-        this.openaiService
-          .chatThreadMessages$(threadId)
-          .subscribe((messages) => {
-            if (messages) {
-              this.messages$.next(messages);
-            }
-          });
-
+        this.openaiService.chatThread$(threadId).subscribe((thread) => {
+          if (thread) {
+            this.messages$.next(thread.messages);
+            this.model = thread.model;
+          }
+        });
         this.openaiService.chatThreadName$(threadId).subscribe((name) => {
           if (name) {
             this.headerService.setHeaderText(name);
@@ -123,4 +127,7 @@ export class ChatComponent {
     const newMessages = messages.filter((_, i) => i !== index);
     this.openaiService.updateChatThreadMessages(newMessages, this.threadId);
   };
+
+  // helpers
+  trackMessagesByContent = (_: number, message: ChatMessage) => message.content;
 }

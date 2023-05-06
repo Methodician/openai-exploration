@@ -21,5 +21,18 @@
     mat-form-field {
       flex: 1;
     }
+
+    .prompt-actions {
+      display: flex;
+      flex-direction: column;
+
+      .prompt-action-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 10px;
+      }
+    }
   }
 }
