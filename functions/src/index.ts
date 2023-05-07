@@ -223,7 +223,7 @@ export const onMessageWrite = functions.database
     const tokensPerMessage = 3; // gpt-4 & may change later
     const tokensPerName = 1; // gpt-4 & may change later
     let newTokenCount = tokensPerMessage;
-    for (let [key, val] of Object.entries(newRequestMessage)) {
+    for (const [key, val] of Object.entries(newRequestMessage)) {
       if (val) {
         newTokenCount += encoding.encode(val).length;
       }

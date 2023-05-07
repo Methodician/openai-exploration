@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs';
 import { HeaderService } from 'src/app/services/header.service';
-import { OpenaiService } from 'src/app/services/openai.service';
+import { ThreadService } from 'src/app/services/thread.service';
 
 @Component({
   selector: 'app-home',
@@ -10,11 +10,11 @@ import { OpenaiService } from 'src/app/services/openai.service';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  threads$ = this.openaiService.availableThreads$();
+  threads$ = this.threadService.allThreads$();
 
   constructor(
     private headerService: HeaderService,
-    private openaiService: OpenaiService,
+    private threadService: ThreadService,
     private router: Router
   ) {}
 
@@ -23,7 +23,7 @@ export class HomeComponent {
   }
 
   createNewThread = () => {
-    const threadId$ = this.openaiService.createNewThread$();
+    const threadId$ = this.threadService.createNewThread$();
     threadId$.pipe(first()).subscribe((threadId) => {
       this.router.navigateByUrl(`/chat/${threadId}`);
     });
