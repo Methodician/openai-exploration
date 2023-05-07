@@ -1,9 +1,11 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { ThreadMessage } from 'src/app/models/shared';
+import { ThreadConfig, ThreadMessage } from 'src/app/models/shared';
 import { HeaderService } from 'src/app/services/header.service';
 import { ThreadService } from 'src/app/services/thread.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ThreadPreferencesDialogComponent } from '../dialogs/thread-preferences-dialog/thread-preferences-dialog.component';
 
 @Component({
   selector: 'app-thread',
@@ -23,7 +25,8 @@ export class ThreadComponent implements OnInit {
   constructor(
     private headerService: HeaderService,
     private threadService: ThreadService,
-    private activeRoute: ActivatedRoute
+    private activeRoute: ActivatedRoute,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +63,29 @@ export class ThreadComponent implements OnInit {
           });
       }
     });
+
+    this.headerService.otherStuffClicked$.subscribe(() => {
+      if (!this.threadId) {
+        throw new Error('No thread id');
+      }
+
+      const dialogRef = this.dialog.open(ThreadPreferencesDialogComponent, {
+        data: { threadId: this.threadId },
+        width: '700px',
+      });
+
+      dialogRef.afterClosed().subscribe((result: ThreadConfig) => {
+        this.saveConfig(result);
+      });
+    });
   }
+
+  saveConfig = (config: ThreadConfig) => {
+    if (!this.threadId) {
+      throw new Error('No thread id');
+    }
+    this.threadService.updateThreadConfig(this.threadId, config);
+  };
 
   scrollToBottom = () => {
     if (!!this.messageHistory) {

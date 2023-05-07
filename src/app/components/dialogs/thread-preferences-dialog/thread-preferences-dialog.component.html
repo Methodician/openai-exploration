@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>Thread Configuration</h2>
+<mat-dialog-content>
+  <mat-label>
+    <h1>API Configuration:</h1>
+  </mat-label>
+  <mat-form-field>
+    <mat-label>Model</mat-label>
+    <mat-select [(value)]="threadConfig.model">
+      <mat-option *ngFor="let model of models" [value]="model.value">
+        {{ model.viewValue }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div class="slider-wrapper">
+    <mat-slider min="0" [max]="maxTokens">
+      <mat-label>Max Tokens</mat-label>
+      <input matSliderThumb [(ngModel)]="threadConfig.max_tokens" />
+    </mat-slider>
+    <span>{{ threadConfig.max_tokens }}</span>
+  </div>
+  <div class="slider-wrapper">
+    <mat-slider min="0" max="2" step="0.1">
+      <mat-label>Temperature</mat-label>
+      <input matSliderThumb [(ngModel)]="threadConfig.temperature" />
+    </mat-slider>
+    <span>{{ threadConfig.temperature }}</span>
+  </div>
+  <div class="slider-wrapper">
+    <mat-slider min="0" max="1" step="0.01">
+      <mat-label>Top P</mat-label>
+      <input matSliderThumb [(ngModel)]="threadConfig.top_p" />
+    </mat-slider>
+    <span>{{ threadConfig.top_p }}</span>
+  </div>
+  <div class="slider-wrapper">
+    <mat-slider min="1" max="10" step="1">
+      <mat-label>N</mat-label>
+      <input matSliderThumb [(ngModel)]="threadConfig.n" />
+    </mat-slider>
+    <span>{{ threadConfig.n }}</span>
+  </div>
+  <div class="slider-wrapper">
+    <mat-slider min="-2" max="2" step="0.1">
+      <mat-label>Presence Penalty</mat-label>
+      <input matSliderThumb [(ngModel)]="threadConfig.presence_penalty" />
+    </mat-slider>
+    <span>{{ threadConfig.presence_penalty }}</span>
+  </div>
+  <div class="slider-wrapper">
+    <mat-slider min="-2" max="2" step="0.1">
+      <mat-label>Frequency Penalty</mat-label>
+      <input matSliderThumb [(ngModel)]="threadConfig.frequency_penalty" />
+    </mat-slider>
+    <span>{{ threadConfig.frequency_penalty }}</span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()">Submit</button>
+</mat-dialog-actions>

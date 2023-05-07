@@ -39,6 +39,12 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 // toolbar
 import { MatToolbarModule } from '@angular/material/toolbar';
+// dialog
+import { MatDialogModule } from '@angular/material/dialog';
+// select
+import { MatSelectModule } from '@angular/material/select';
+// slider
+import { MatSliderModule } from '@angular/material/slider';
 
 // Internal
 import { AppRoutingModule } from './app-routing.module';
@@ -49,6 +55,8 @@ import { MessageComponent } from './components/message/message.component';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ThreadComponent } from './components/thread/thread.component';
+import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-preferences-dialog/thread-preferences-dialog.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -57,6 +65,7 @@ import { ThreadComponent } from './components/thread/thread.component';
     HomeComponent,
     HeaderComponent,
     ThreadComponent,
+    ThreadPreferencesDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -91,6 +100,9 @@ import { ThreadComponent } from './components/thread/thread.component';
     MatListModule,
     MatIconModule,
     MatToolbarModule,
+    MatDialogModule,
+    MatSelectModule,
+    MatSliderModule,
   ],
   providers: [
     {

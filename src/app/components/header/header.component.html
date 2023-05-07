@@ -5,5 +5,7 @@
     </button>
   </span>
   <span class="header-text">{{ headerText$ | async }}</span>
-  <span class="right-nav"> other stuff </span>
+  <span class="right-nav">
+    <button mat-button (click)="onOtherStuffClicked()">other stuff</button>
+  </span>
 </mat-toolbar>

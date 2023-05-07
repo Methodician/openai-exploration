@@ -1,0 +1,17 @@
+:host {
+  .slider-wrapper {
+    display: flex;
+
+    mat-slider {
+      flex-grow: 1;
+      margin-right: 8px; // Add some space between the slider and the span
+      margin-bottom: 8px; // Add some space between sliders for label to fit
+    }
+
+    span {
+      display: inline-block;
+      width: 5ch; // Width to hold up to 5 characters/digits
+      text-align: right;
+    }
+  }
+}

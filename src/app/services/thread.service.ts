@@ -13,6 +13,7 @@ import {
   httpsCallable,
   httpsCallableData,
 } from '@angular/fire/functions';
+import { ThreadConfig } from '../models/shared';
 
 @Injectable({
   providedIn: 'root',
@@ -30,8 +31,8 @@ export class ThreadService {
   private threadMessagePath = (threadId: string, messageId: string) =>
     `${this.threadMessagesPath(threadId)}/${messageId}`;
   private threadPath = (threadId: string) => `threads/${threadId}`;
-  private threadModelPath = (threadId: string) =>
-    `${this.threadPath(threadId)}/config/model`;
+  private threadConfigPath = (threadId: string) =>
+    `${this.threadPath(threadId)}/config`;
   private threadPreferencesPath = (threadId: string) =>
     `${this.threadPath(threadId)}/preferences`;
 
@@ -48,7 +49,10 @@ export class ThreadService {
     });
 
   threadPreferences$ = (threadId: string) =>
-    objectVal<any>(ref(this.db, this.threadPreferencesPath(threadId)));
+    objectVal<ThreadConfig>(ref(this.db, this.threadPreferencesPath(threadId)));
+
+  threadConfig$ = (threadId: string) =>
+    objectVal<ThreadConfig>(ref(this.db, this.threadConfigPath(threadId)));
 
   threadMetadata$ = (threadId: string) =>
     objectVal<any>(ref(this.db, this.threadMetadataPath(threadId)));
@@ -56,11 +60,8 @@ export class ThreadService {
   createNewThread$ = () =>
     httpsCallableData<any>(this.functions, 'createNewChatThread')();
 
-  setThreadModel = (threadId: string, model: string) =>
-    set(ref(this.db, this.threadModelPath(threadId)), model);
-
-  updateThreadPreferences = (threadId: string, preferences: any) =>
-    update(ref(this.db, this.threadPreferencesPath(threadId)), preferences);
+  updateThreadConfig = (threadId: string, config: ThreadConfig) =>
+    update(ref(this.db, this.threadConfigPath(threadId)), config);
 
   sendUserMessage = (threadId: string, content: string) => {
     const messageRef = ref(this.db, this.threadMessagesPath(threadId));
@@ -84,4 +85,10 @@ export class ThreadService {
 
   submitThreadToAi = (threadId: string) =>
     httpsCallable(this.functions, 'submitChatThread')({ threadId });
+
+  getAvailableModels = async () => {
+    const getModels = httpsCallable(this.functions, 'getAvailableModels');
+    const result = await getModels();
+    return result.data;
+  };
 }

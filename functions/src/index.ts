@@ -27,16 +27,12 @@ const openaiConfig = new Configuration({
 
 const openai = new OpenAIApi(openaiConfig);
 
-export const updateAvailableModels = functions.database
-  .ref('/availableModels/lastRequestDate')
-  .onUpdate(async (_) => {
-    const modelsResponse = await openai.listModels();
-    const models = modelsResponse.data.data;
+export const getAvailableModels = functions.https.onCall(async () => {
+  const modelsResponse = await openai.listModels();
+  const models = modelsResponse.data.data;
 
-    const availableModelsRef = admin.database().ref('/availableModels/models');
-
-    return availableModelsRef.set(models);
-  });
+  return models;
+});
 
 // Might actually save these to Firestore instead of Realtime Database, but maybe just for long-term?
 // I think in a prod app each user might have a single active thread in rtdb, and then a history of threads in firestore
