@@ -28,15 +28,8 @@ export type OpenaiModel = {
   root: string;
 };
 
-export type ChatMessageRole = 'system' | 'user' | 'assistant';
-export type ChatMessage = {
-  role: ChatMessageRole;
-  content: string;
-  name?: string; // optional name for the user
-};
-export type ChatCompletionRequest = {
+export type ThreadConfig = {
   model: string;
-  messages: ChatMessage[];
   temperature?: number;
   top_p?: number;
   n?: number;
@@ -47,6 +40,19 @@ export type ChatCompletionRequest = {
   logit_bias?: { [key: string]: number };
   user?: string;
 };
+export type ChatMessageRole = 'system' | 'user' | 'assistant';
+export type RequestMessage = {
+  role: ChatMessageRole;
+  content: string;
+  name?: string; // optional name for the user
+};
+export type ThreadMessage = {
+  key?: string;
+  tokenCount?: number;
+} & RequestMessage;
+export type ChatCompletionRequest = {
+  messages: RequestMessage[];
+} & ThreadConfig;
 
 export type FinishReason =
   | 'stop' // API returned complete model output

@@ -10,7 +10,7 @@ import {
 import { serverTimestamp } from 'firebase/database';
 import {
   ChatCompletionRequest,
-  ChatMessage,
+  RequestMessage,
   OpenaiModel,
 } from '../models/shared';
 import {
@@ -95,7 +95,7 @@ export class OpenaiService {
   submitChatThreadToAi = (threadId: string) =>
     httpsCallable(this.functions, 'submitChatThread')({ threadId });
 
-  updateChatThreadMessages = (messages: ChatMessage[], threadId: string) => {
+  updateChatThreadMessages = (messages: RequestMessage[], threadId: string) => {
     const messagesRef = ref(this.db, this.messagesPath(threadId));
     return set(messagesRef, messages);
   };

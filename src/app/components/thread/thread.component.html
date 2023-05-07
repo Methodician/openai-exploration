@@ -1,18 +1,20 @@
-<div class="container">
-  <mat-card class="message-history">
-    <app-message
+<mat-card class="container">
+  <mat-card class="message-history" #messageHistory>
+    <ng-container
       *ngFor="
         let message of messages$ | async;
         index as i;
-        trackBy: trackMessagesByContent
+        trackMessagesByContent
       "
-      [rawMessage]="message"
-      [index]="i"
-      (onMessageUpdate)="updateMessage($event)"
-      (onMessageDelete)="deleteMessage($event)"
-    ></app-message>
+    >
+      <app-message
+        [rawMessage]="message"
+        (onMessageUpdate)="updateMessage($event)"
+        (onMessageDelete)="deleteMessage($event)"
+      ></app-message>
+    </ng-container>
   </mat-card>
-  <mat-card class="prompt-box">
+  <div class="input-container">
     <mat-form-field appearance="outline">
       <mat-label>Enter a prompt</mat-label>
       <textarea
@@ -23,11 +25,11 @@
       ></textarea>
     </mat-form-field>
     <div class="prompt-actions">
-      <div class="prompt-action-row">
-        <button class="submit-prompt" mat-icon-button (click)="submitPrompt()">
+      <div class="prompt-actions-row">
+        <button mat-icon-button color="accent" (click)="sendMessage()">
           <mat-icon>send</mat-icon>
         </button>
-        <button mat-icon-button (click)="submitToAi()">
+        <button mat-icon-button color="primary" (click)="submitThread()">
           <mat-icon>send_and_archive</mat-icon>
         </button>
       </div>
@@ -35,8 +37,8 @@
         <button mat-icon-button (click)="renameThread()">
           <mat-icon>autorenew</mat-icon>
         </button>
-        <span>{{ totalTokens$ | async }}</span>
+        <span>{{ (metadata$ | async)?.tokenCount }}</span>
       </div>
     </div>
-  </mat-card>
-</div>
+  </div>
+</mat-card>

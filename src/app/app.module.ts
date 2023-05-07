@@ -41,24 +41,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 // Internal
-import { CompletionsComponent } from './components/completions/completions.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
-import { ChatComponent } from './components/chat/chat.component';
 import { ModelSelectComponent } from './components/model-select/model-select.component';
-import { MessageComponent } from './components/chat/message/message.component';
+import { MessageComponent } from './components/message/message.component';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
+import { ThreadComponent } from './components/thread/thread.component';
 @NgModule({
   declarations: [
     AppComponent,
-    CompletionsComponent,
-    ChatComponent,
     ModelSelectComponent,
     MessageComponent,
     HomeComponent,
     HeaderComponent,
+    ThreadComponent,
   ],
   imports: [
     BrowserModule,

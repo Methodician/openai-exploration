@@ -5,8 +5,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { ChatMessage } from 'src/app/models/shared';
-import { TokenService } from 'src/app/token.service';
+import { ThreadMessage } from 'src/app/models/shared';
 
 @Component({
   selector: 'app-message',
@@ -14,22 +13,21 @@ import { TokenService } from 'src/app/token.service';
   styleUrls: ['./message.component.scss'],
 })
 export class MessageComponent {
-  @Input() rawMessage?: ChatMessage;
-  @Input() index?: number;
+  @Input() rawMessage?: ThreadMessage;
   @Output() onMessageUpdate = new EventEmitter<{
-    index: number;
+    key: string;
     newContent: string;
   }>();
-  @Output() onMessageDelete = new EventEmitter<number>();
-  tokenCount = 0;
+  @Output() onMessageDelete = new EventEmitter<string>();
   isEditing = false;
   message?: {
     role: 'user' | 'assistant' | 'system';
     segments: { type: 'text' | 'code'; content: string }[];
+    tokenCount: number;
   };
   rawContent?: string;
 
-  constructor(private tokenService: TokenService) {}
+  constructor() {}
 
   ngOnChanges(changes: SimpleChanges) {
     const messageChanges = changes['rawMessage'];
@@ -41,26 +39,24 @@ export class MessageComponent {
         messageChanges.currentValue.content
       );
       this.message = { ...messageChanges.currentValue, segments };
-      setTimeout(() => {
-        // Makes the messages appear immediately without counts
-        this.tokenCount = this.tokenService.countTokens(val);
-      }, 0);
     }
   }
 
   updateMessage = () => {
-    if (this.index === undefined) throw new Error('No index provided');
+    if (this.rawMessage?.key === undefined)
+      throw new Error('No message key provided');
     if (!this.rawContent) throw new Error('No content provided');
     this.onMessageUpdate.emit({
-      index: this.index,
+      key: this.rawMessage.key,
       newContent: this.rawContent,
     });
     this.isEditing = false;
   };
 
   deleteMessage = () => {
-    if (this.index === undefined) throw new Error('No index provided');
-    this.onMessageDelete.emit(this.index);
+    if (this.rawMessage?.key === undefined)
+      throw new Error('No message key provided');
+    this.onMessageDelete.emit(this.rawMessage.key);
   };
 
   extractSegments(input: string): {

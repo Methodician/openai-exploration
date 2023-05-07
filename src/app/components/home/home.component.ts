@@ -19,7 +19,7 @@ export class HomeComponent {
   ) {}
 
   ngOnInit(): void {
-    this.headerService.setHeaderText('GPT Pro');
+    this.headerService.setHeaderText('AI Power User');
   }
 
   createNewThread = () => {

@@ -1,0 +1,45 @@
+.container {
+  position: relative;
+  height: calc(100vh - 64px);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  color: #fff;
+}
+
+.message-history {
+  background-color: #59697d;
+  padding: 20px;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+mat-list-item.user-message {
+  background-color: #b3e5fc;
+}
+
+mat-list-item.bot-message {
+  background-color: #f0f4c3;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  padding: 20px;
+
+  mat-form-field {
+    flex: 1;
+  }
+
+  .prompt-actions {
+    display: flex;
+    flex-direction: column;
+
+    .prompt-action-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+}
