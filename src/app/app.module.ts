@@ -45,6 +45,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 // slider
 import { MatSliderModule } from '@angular/material/slider';
+// checkbox
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Internal
 import { AppRoutingModule } from './app-routing.module';
@@ -103,6 +105,7 @@ import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-pr
     MatDialogModule,
     MatSelectModule,
     MatSliderModule,
+    MatCheckboxModule,
   ],
   providers: [
     {

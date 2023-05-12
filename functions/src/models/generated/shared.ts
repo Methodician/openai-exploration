@@ -29,16 +29,21 @@ export type OpenaiModel = {
 };
 
 export type ThreadConfig = {
-  model: string;
-  temperature?: number;
-  top_p?: number;
-  n?: number;
-  stream?: boolean;
-  stop?: string[] | string;
-  presence_penalty?: number;
-  frequency_penalty?: number;
-  logit_bias?: { [key: string]: number };
-  user?: string;
+  model: string; // select from a pre-defined list of models
+  temperature?: number; // slider between 0 and 1 defaults to 0.7
+  top_p?: number; // slider between 0 and 1 defaults to 1
+  n?: number; // slider between 0 and 1 defaults to 1
+  stream?: boolean; // ignore (do not include in the form)
+  stop?: string[] | string; // ignore (do not include in the form)
+  presence_penalty?: number; // slider between -2 and 2 defaults to 0
+  frequency_penalty?: number; // slider between -2 and 2 defaults to 0
+  logit_bias?: { [key: string]: number }; // ignore (do not include in the form)
+  max_tokens?: number; // number with dynamic max depending on selected model
+  user?: string; // ignore (do not include in the form)
+};
+export type ThreadPrefs = {
+  shouldAutoSubmit: boolean;
+  shouldSendOnEnter: boolean;
 };
 export type ChatMessageRole = 'system' | 'user' | 'assistant';
 export type RequestMessage = {
@@ -48,7 +53,7 @@ export type RequestMessage = {
 };
 export type ThreadMessage = {
   key?: string;
-  tokenCount: number;
+  tokenCount?: number;
 } & RequestMessage;
 export type ChatCompletionRequest = {
   messages: RequestMessage[];

@@ -13,7 +13,7 @@ import {
   httpsCallable,
   httpsCallableData,
 } from '@angular/fire/functions';
-import { ThreadConfig } from '../models/shared';
+import { ThreadConfig, ThreadPrefs } from '../models/shared';
 
 @Injectable({
   providedIn: 'root',
@@ -37,11 +37,15 @@ export class ThreadService {
     `${this.threadPath(threadId)}/preferences`;
 
   allThreads$ = () => {
-    return listVal<any>(ref(this.db, 'threads'), { keyField: 'key' });
+    return listVal<any>(ref(this.db, 'threadMetadata'), { keyField: 'key' });
   };
 
   thread$ = (threadId: string) =>
-    objectVal<any>(ref(this.db, this.threadPath(threadId)));
+    objectVal<{
+      config: ThreadConfig;
+      preferences: ThreadPrefs;
+      lastSuccessResponse: any;
+    }>(ref(this.db, this.threadPath(threadId)));
 
   threadMessages$ = (threadId: string) =>
     listVal<any>(ref(this.db, this.threadMessagesPath(threadId)), {
@@ -62,6 +66,9 @@ export class ThreadService {
 
   updateThreadConfig = (threadId: string, config: ThreadConfig) =>
     update(ref(this.db, this.threadConfigPath(threadId)), config);
+
+  updateThreadPrefs = (threadId: string, prefs: ThreadPrefs) =>
+    update(ref(this.db, this.threadPreferencesPath(threadId)), prefs);
 
   sendUserMessage = (threadId: string, content: string) => {
     const messageRef = ref(this.db, this.threadMessagesPath(threadId));

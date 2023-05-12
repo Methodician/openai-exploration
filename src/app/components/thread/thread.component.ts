@@ -1,7 +1,11 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { ThreadConfig, ThreadMessage } from 'src/app/models/shared';
+import {
+  ThreadConfig,
+  ThreadMessage,
+  ThreadPrefs,
+} from 'src/app/models/shared';
 import { HeaderService } from 'src/app/services/header.service';
 import { ThreadService } from 'src/app/services/thread.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -72,19 +76,23 @@ export class ThreadComponent implements OnInit {
       const dialogRef = this.dialog.open(ThreadPreferencesDialogComponent, {
         data: { threadId: this.threadId },
         width: '700px',
+        panelClass: 'settings-dialog',
       });
 
-      dialogRef.afterClosed().subscribe((result: ThreadConfig) => {
-        this.saveConfig(result);
-      });
+      dialogRef
+        .afterClosed()
+        .subscribe((result: { config: ThreadConfig; prefs: ThreadPrefs }) => {
+          this.saveConfig(result.config, result.prefs);
+        });
     });
   }
 
-  saveConfig = (config: ThreadConfig) => {
+  saveConfig = (config: ThreadConfig, prefs: ThreadPrefs) => {
     if (!this.threadId) {
       throw new Error('No thread id');
     }
     this.threadService.updateThreadConfig(this.threadId, config);
+    this.threadService.updateThreadPrefs(this.threadId, prefs);
   };
 
   scrollToBottom = () => {
@@ -101,6 +109,10 @@ export class ThreadComponent implements OnInit {
 
     this.threadService.sendUserMessage(this.threadId, this.promptText);
     this.promptText = '';
+
+    if (this.preferences.shouldAutoSubmit) {
+      this.submitThread();
+    }
   };
 
   submitThread = () => {
@@ -120,49 +132,7 @@ export class ThreadComponent implements OnInit {
     this.threadService.renameThread(this.threadId, name);
   };
 
-  // from chat.component.ts
-  // submitToAi = () => {
-  //   if (!this.threadId) {
-  //     throw new Error('No thread id');
-  //   }
-
-  //   this.openaiService.submitChatThreadToAi(this.threadId);
-  // };
-
-  // renameThread = () => {
-  //   if (!this.threadId) {
-  //     throw new Error('No thread id');
-  //   }
-  //   const name = prompt('Enter a new thread name, or nothing to auto generate');
-
-  //   this.openaiService.renameChatThread(this.threadId, name);
-  // };
-
-  // submitPrompt = async () => {
-  //   if (!this.threadId) {
-  //     throw new Error('No thread id');
-  //   }
-  //   if (!this.promptText) {
-  //     alert('Please enter a prompt');
-  //     return;
-  //   }
-
-  //   const messages = this.messages$.getValue();
-  //   const newMessage: RequestMessage = {
-  //     content: this.promptText,
-  //     role: 'user',
-  //   };
-  //   const newMessages = [...messages, newMessage];
-
-  //   await this.openaiService.updateChatThreadMessages(
-  //     newMessages,
-  //     this.threadId
-  //   );
-  //   this.promptText = '';
-  // };
-
   onEnterKeyDown = (e: Event): void => {
-    console.log(e);
     if (this.preferences.shouldSendOnEnter) {
       e.preventDefault();
       this.sendMessage();
@@ -176,14 +146,6 @@ export class ThreadComponent implements OnInit {
 
     const { key, newContent } = $event;
     this.threadService.updateThreadMessage(this.threadId, key, newContent);
-    // const messages = this.messages$.getValue();
-    // const newMessages = [
-    //   ...messages.slice(0, index),
-    //   { ...messages[index], content: newContent },
-    //   ...messages.slice(index + 1),
-    // ];
-
-    // this.openaiService.updateChatThreadMessages(newMessages, this.threadId);
   };
 
   deleteMessage = (messageKey: string) => {
@@ -191,15 +153,6 @@ export class ThreadComponent implements OnInit {
       throw new Error('No thread id');
     }
     this.threadService.deleteThreadMessage(this.threadId, messageKey);
-    // if (index === 0) {
-    //   alert(
-    //     'Cannot delete the first message. This is the system message. You could just leave it blank.'
-    //   );
-    //   return;
-    // }
-    // const messages = this.messages$.getValue();
-    // const newMessages = messages.filter((_, i) => i !== index);
-    // this.openaiService.updateChatThreadMessages(newMessages, this.threadId);
   };
 
   // helpers

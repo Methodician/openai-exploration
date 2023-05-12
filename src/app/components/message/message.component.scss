@@ -11,6 +11,12 @@
     width: 100%;
   }
 
+  mat-card-content {
+    pre {
+      white-space: pre-wrap;
+    }
+  }
+
   .edit-icon,
   .send-icon {
     cursor: pointer;

@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ThreadConfig } from 'src/app/models/shared';
+import { ThreadConfig, ThreadPrefs } from 'src/app/models/shared';
 import { ThreadService } from 'src/app/services/thread.service';
 
 interface ModelSelection {
@@ -14,6 +14,11 @@ interface ModelSelection {
   styleUrls: ['./thread-preferences-dialog.component.scss'],
 })
 export class ThreadPreferencesDialogComponent {
+  thread$ = this.threadService.thread$(this.data.threadId);
+  threadPrefs: ThreadPrefs = {
+    shouldAutoSubmit: true,
+    shouldSendOnEnter: true,
+  };
   threadConfig: ThreadConfig = {
     model: 'gpt-4',
     temperature: 1,
@@ -61,6 +66,12 @@ export class ThreadPreferencesDialogComponent {
       const modelIds = models.filter((m: any) => !!m.id).map((m: any) => m.id);
       this.models = this.models.filter((m) => modelIds.includes(m.value));
     });
+    this.thread$.subscribe((thread) => {
+      if (thread) {
+        this.threadPrefs = thread.preferences;
+        this.threadConfig = thread.config;
+      }
+    });
   }
 
   onModelSelect(event: Event) {
@@ -69,6 +80,9 @@ export class ThreadPreferencesDialogComponent {
   }
 
   onSubmit() {
-    this.dialogRef.close(this.threadConfig);
+    this.dialogRef.close({
+      config: this.threadConfig,
+      prefs: this.threadPrefs,
+    });
   }
 }

@@ -1,4 +1,15 @@
+::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: #242c33;
+}
 :host {
+  mat-card {
+    padding: 10px;
+  }
+
+  .thread-prefs {
+    margin-top: 20px;
+  }
+
   .slider-wrapper {
     display: flex;
 

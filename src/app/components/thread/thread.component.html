@@ -22,6 +22,10 @@
         [(ngModel)]="promptText"
         tabindex="0"
         (keydown.enter)="onEnterKeyDown($event)"
+        cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="25"
       ></textarea>
     </mat-form-field>
     <div class="prompt-actions">

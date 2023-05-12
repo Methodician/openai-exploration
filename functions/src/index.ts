@@ -49,7 +49,7 @@ export const createNewChatThread = functions.https.onCall(async () => {
   };
   const preferences = {
     shouldSendOnEnter: true,
-    shouldAutoSubmit: false,
+    shouldAutoSubmit: true,
   };
   const systemMessage = {
     role: 'system',
@@ -82,18 +82,32 @@ export const renameChatThread = functions.https.onCall(
       throw new Error('No thread id');
     }
     if (!name) {
-      const threadRef = admin.database().ref(`/chat/${threadId}/thread`);
+      const messagesRef = admin.database().ref(`/threadMessages/${threadId}`);
+      const threadRef = admin.database().ref(`/threads/${threadId}`);
+      const messagesSnap = await messagesRef.get();
       const threadSnap = await threadRef.get();
+      const messages = Object.values(messagesSnap.val()).map(
+        ({ content, role }: any) => ({
+          content,
+          role,
+        })
+      );
       const thread = threadSnap.val();
-      // add a final user message to the thread
-      thread.messages.push({
+
+
+      messages.push({
         role: 'user',
         content:
-          'Please come up with a creative and succinct description for this session. It can be a word, words, or a phrase. It must be between 5 and 21 characters, and should succinctly describe the purpose of the session. Respond only with the new name you invented and nothing else. ',
+          'Respond now with a creative and succinct description for this session. It can be a word, multiple words, or a phrase. It must be between 5 and 40 characters, and should succinctly describe the purpose of the session. Respond only with the new name and nothing else.',
       });
 
+      const request: ChatCompletionRequest = {
+        messages: messages as RequestMessage[],
+        ...thread.config,
+      };
+
       try {
-        const aiResponse = await openai.createChatCompletion(thread);
+        const aiResponse = await openai.createChatCompletion(request);
         const responseData = aiResponse.data;
         const newMessageContent = responseData.choices[0].message?.content;
         if (!newMessageContent) {
@@ -113,8 +127,14 @@ export const renameChatThread = functions.https.onCall(
       }
     }
 
-    const sessionNameRef = admin.database().ref(`/chat/${threadId}/name`);
-    return sessionNameRef.set(newName);
+    const threadMetadataRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}`);
+
+    return threadMetadataRef.update({
+      name: newName,
+    });
+
   }
 );
 

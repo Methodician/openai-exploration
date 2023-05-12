@@ -23,8 +23,8 @@
     <ng-container *ngIf="!isEditing">
       <ng-container *ngFor="let segment of msg.segments">
         <ng-container [ngSwitch]="segment.type">
-          <span *ngSwitchCase="'text'" [innerHtml]="segment.content"></span>
-          <pre *ngSwitchCase="'code'">
+          <pre *ngSwitchCase="'text'" [innerHtml]="segment.content"></pre>
+          <pre *ngSwitchCase="'code'" class="code-block">
               <code  [highlight]="segment.content"></code>
           </pre>
         </ng-container>
