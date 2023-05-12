@@ -94,7 +94,6 @@ export const renameChatThread = functions.https.onCall(
       );
       const thread = threadSnap.val();
 
-
       messages.push({
         role: 'user',
         content:
@@ -134,7 +133,6 @@ export const renameChatThread = functions.https.onCall(
     return threadMetadataRef.update({
       name: newName,
     });
-
   }
 );
 
@@ -213,7 +211,14 @@ export const onMessageWrite = functions.database
 
     // if there is an old and not a new, it was deleted, so just reduce the thread token count
     if (oldMessage && !newMessage) {
-      threadTokenCount -= oldMessage.tokenCount;
+      if (
+        oldMessage.tokenCount === undefined ||
+        threadTokenCount - oldMessage.tokenCount < 1
+      ) {
+        threadTokenCount = 0;
+      } else {
+        threadTokenCount -= oldMessage.tokenCount;
+      }
       return threadTokenCountRef.set(threadTokenCount);
     }
 
@@ -222,7 +227,7 @@ export const onMessageWrite = functions.database
         return;
       }
       // it was an edit, so we need to reduce the thread token count before adding the new one
-      threadTokenCount -= oldMessage.tokenCount;
+      threadTokenCount -= oldMessage.tokenCount || 0;
     }
 
     // I think from here we can assume there is a new message...
