@@ -197,9 +197,8 @@ export const submitChatThread = functions
         console.error('error message:');
         console.log(error.message);
       }
-    } finally {
-      return isGeneratingRef.set(false);
     }
+    return isGeneratingRef.set(false);
   });
 
 export const onMessageWrite = functions.database
