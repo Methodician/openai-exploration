@@ -11,6 +11,21 @@
   padding: 20px;
   gap: 20px;
   overflow-y: auto;
+
+  .loading-indicator {
+    background-color: #063e21;
+
+    mat-card-header {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    mat-card-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
 }
 
 mat-list-item.user-message {
@@ -21,25 +36,29 @@ mat-list-item.bot-message {
   background-color: #f0f4c3;
 }
 
-.input-container {
-  display: flex;
-  flex-direction: row;
-  padding: 20px;
+.footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  .left-part {
+    .metadata {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      padding: 3px 0 0;
+    }
+    .input-container {
+      display: flex;
+      flex-direction: row;
+      padding: 0 5px 0 10px;
 
-  mat-form-field {
-    flex: 1;
+      mat-form-field {
+        flex: 1;
+      }
+    }
   }
-
   .prompt-actions {
     display: flex;
     flex-direction: column;
-
-    .prompt-action-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-evenly;
-      align-items: center;
-      gap: 10px;
-    }
   }
 }

@@ -41,10 +41,20 @@ export type ThreadConfig = {
   max_tokens?: number; // number with dynamic max depending on selected model
   user?: string; // ignore (do not include in the form)
 };
+
 export type ThreadPrefs = {
   shouldAutoSubmit: boolean;
   shouldSendOnEnter: boolean;
 };
+
+export type ThreadMetadata = {
+  key?: string;
+  name: string;
+  messageCount: number;
+  tokenCount: number;
+  isAiGenerating: boolean;
+};
+
 export type ChatMessageRole = 'system' | 'user' | 'assistant';
 export type RequestMessage = {
   role: ChatMessageRole;

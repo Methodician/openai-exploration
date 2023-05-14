@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import {
   ThreadConfig,
   ThreadMessage,
+  ThreadMetadata,
   ThreadPrefs,
 } from 'src/app/models/shared';
 import { HeaderService } from 'src/app/services/header.service';
@@ -19,12 +20,16 @@ import { ThreadPreferencesDialogComponent } from '../dialogs/thread-preferences-
 export class ThreadComponent implements OnInit {
   @ViewChild('messageHistory', { read: ElementRef })
   private messageHistory?: ElementRef;
-  preferences: any = {};
+  preferences: ThreadPrefs = {
+    shouldAutoSubmit: false,
+    shouldSendOnEnter: false,
+  };
   model = 'gpt-4';
   promptText = '';
   threadId?: string;
-  messages$ = new Subject<any>();
-  metadata$ = new Subject<any>();
+  messages$ = new Subject<ThreadMessage[]>();
+  metadata$ = new Subject<ThreadMetadata>();
+  threadMaxTokens$ = new Subject<number>();
 
   constructor(
     private headerService: HeaderService,
@@ -34,15 +39,32 @@ export class ThreadComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.headerService.isTitleClickable$.next(true);
     this.activeRoute.params.subscribe((params) => {
       const threadId = params['threadId'];
       if (threadId) {
         this.threadId = threadId;
 
+        let lastLoadingState = false;
         this.threadService.threadMetadata$(threadId).subscribe((metadata) => {
           if (metadata) {
+            if (lastLoadingState !== metadata.isAiGenerating) {
+              setTimeout(() => {
+                // pushes down the call stack so the element has a chance to exist
+                if (this.messageHistory?.nativeElement) {
+                  this.scrollToBottom();
+                }
+              });
+              lastLoadingState = metadata.isAiGenerating;
+            }
             this.metadata$.next(metadata);
             this.headerService.setHeaderText(metadata.name);
+          }
+        });
+
+        this.threadService.threadMaxTokens$(threadId).subscribe((maxTokens) => {
+          if (maxTokens) {
+            this.threadMaxTokens$.next(maxTokens);
           }
         });
 
@@ -69,23 +91,48 @@ export class ThreadComponent implements OnInit {
     });
 
     this.headerService.otherStuffClicked$.subscribe(() => {
-      if (!this.threadId) {
-        throw new Error('No thread id');
-      }
+      this.openThreadPrefsDialog();
+    });
 
-      const dialogRef = this.dialog.open(ThreadPreferencesDialogComponent, {
-        data: { threadId: this.threadId },
-        width: '700px',
-        panelClass: 'settings-dialog',
-      });
-
-      dialogRef
-        .afterClosed()
-        .subscribe((result: { config: ThreadConfig; prefs: ThreadPrefs }) => {
-          this.saveConfig(result.config, result.prefs);
-        });
+    this.headerService.titleClicked$.subscribe(() => {
+      this.renameThread();
     });
   }
+
+  ngOnDestroy(): void {
+    this.headerService.isTitleClickable$.next(false);
+    this.headerService.setHeaderText('AI Power User');
+  }
+
+  openThreadPrefsDialog = () => {
+    if (!this.threadId) {
+      throw new Error('No thread id');
+    }
+
+    const dialogRef = this.dialog.open(ThreadPreferencesDialogComponent, {
+      data: { threadId: this.threadId },
+      width: '700px',
+      panelClass: 'settings-dialog',
+    });
+
+    dialogRef
+      .afterClosed()
+      .subscribe((result?: { config: ThreadConfig; prefs: ThreadPrefs }) => {
+        if (!result) {
+          return;
+        }
+        this.saveConfig(result.config, result.prefs);
+      });
+  };
+
+  renameThread = () => {
+    if (!this.threadId) {
+      throw new Error('No thread id');
+    }
+    const name = prompt('Enter a new thread name, or nothing to auto generate');
+
+    this.threadService.renameThread(this.threadId, name);
+  };
 
   saveConfig = (config: ThreadConfig, prefs: ThreadPrefs) => {
     if (!this.threadId) {
@@ -121,15 +168,6 @@ export class ThreadComponent implements OnInit {
     }
 
     this.threadService.submitThreadToAi(this.threadId);
-  };
-
-  renameThread = () => {
-    if (!this.threadId) {
-      throw new Error('No thread id');
-    }
-    const name = prompt('Enter a new thread name, or nothing to auto generate');
-
-    this.threadService.renameThread(this.threadId, name);
   };
 
   onEnterKeyDown = (e: Event): void => {

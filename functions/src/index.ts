@@ -8,6 +8,7 @@ import {
   RequestMessage,
   ThreadConfig,
   ThreadMessage,
+  ThreadMetadata,
 } from './models/generated/shared';
 
 admin.initializeApp();
@@ -42,10 +43,11 @@ export const createNewChatThread = functions.https.onCall(async () => {
   const config: ThreadConfig = {
     model,
   };
-  const metadata = {
+  const metadata: ThreadMetadata = {
     name: 'Unnamed Thread',
     messageCount: 1,
     tokenCount: 11,
+    isAiGenerating: false,
   };
   const preferences = {
     shouldSendOnEnter: true,
@@ -145,6 +147,9 @@ export const submitChatThread = functions
     }
 
     const configRef = admin.database().ref(`/threads/${threadId}/config`);
+    const isGeneratingRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/isAiGenerating`);
     const messagesRef = admin.database().ref(`/threadMessages/${threadId}`);
     const lastSuccessRef = admin
       .database()
@@ -170,6 +175,7 @@ export const submitChatThread = functions
     };
 
     try {
+      isGeneratingRef.set(true);
       const response = await openai.createChatCompletion(request);
       const responseData = response.data;
       const newMessage = responseData.choices[0].message;
@@ -177,7 +183,7 @@ export const submitChatThread = functions
         throw new Error('No message returned from OpenAI');
       }
 
-      return Promise.all([
+      await Promise.all([
         messagesRef.push(newMessage),
         lastSuccessRef.set(responseData),
       ]);
@@ -191,7 +197,8 @@ export const submitChatThread = functions
         console.error('error message:');
         console.log(error.message);
       }
-      return null;
+    } finally {
+      return isGeneratingRef.set(false);
     }
   });
 

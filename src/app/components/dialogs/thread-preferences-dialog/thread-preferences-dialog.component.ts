@@ -68,8 +68,14 @@ export class ThreadPreferencesDialogComponent {
     });
     this.thread$.subscribe((thread) => {
       if (thread) {
-        this.threadPrefs = thread.preferences;
-        this.threadConfig = thread.config;
+        this.threadPrefs = {
+          ...this.threadPrefs,
+          ...(thread.preferences || {}),
+        };
+        this.threadConfig = {
+          ...this.threadConfig,
+          ...(thread.config || {}),
+        };
       }
     });
   }

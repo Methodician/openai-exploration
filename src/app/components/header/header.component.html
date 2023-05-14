@@ -4,7 +4,12 @@
       <mat-icon>home</mat-icon>
     </button>
   </span>
-  <span class="header-text">{{ headerText$ | async }}</span>
+  <span
+    (click)="onTitleClicked()"
+    class="header-text"
+    [ngStyle]="{ cursor: (isTitleClickable$ | async) ? 'pointer' : null }"
+    >{{ headerText$ | async }}</span
+  >
   <span class="right-nav">
     <button mat-button (click)="onOtherStuffClicked()">other stuff</button>
   </span>

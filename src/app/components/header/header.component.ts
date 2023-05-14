@@ -7,7 +7,12 @@ import { HeaderService } from 'src/app/services/header.service';
 })
 export class HeaderComponent {
   headerText$ = this.headerService.headerText$;
+  isTitleClickable$ = this.headerService.isTitleClickable$;
   constructor(private headerService: HeaderService) {}
+
+  onTitleClicked = () => {
+    this.headerService.titleClicked();
+  };
 
   onOtherStuffClicked = () => {
     this.headerService.otherStuffClicked();

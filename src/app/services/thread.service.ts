@@ -13,7 +13,12 @@ import {
   httpsCallable,
   httpsCallableData,
 } from '@angular/fire/functions';
-import { ThreadConfig, ThreadPrefs } from '../models/shared';
+import {
+  ThreadConfig,
+  ThreadMessage,
+  ThreadMetadata,
+  ThreadPrefs,
+} from '../models/shared';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +42,9 @@ export class ThreadService {
     `${this.threadPath(threadId)}/preferences`;
 
   allThreads$ = () => {
-    return listVal<any>(ref(this.db, 'threadMetadata'), { keyField: 'key' });
+    return listVal<ThreadMetadata>(ref(this.db, 'threadMetadata'), {
+      keyField: 'key',
+    });
   };
 
   thread$ = (threadId: string) =>
@@ -48,15 +55,20 @@ export class ThreadService {
     }>(ref(this.db, this.threadPath(threadId)));
 
   threadMessages$ = (threadId: string) =>
-    listVal<any>(ref(this.db, this.threadMessagesPath(threadId)), {
+    listVal<ThreadMessage>(ref(this.db, this.threadMessagesPath(threadId)), {
       keyField: 'key',
     });
 
   threadPreferences$ = (threadId: string) =>
-    objectVal<ThreadConfig>(ref(this.db, this.threadPreferencesPath(threadId)));
+    objectVal<ThreadPrefs>(ref(this.db, this.threadPreferencesPath(threadId)));
 
   threadConfig$ = (threadId: string) =>
     objectVal<ThreadConfig>(ref(this.db, this.threadConfigPath(threadId)));
+
+  threadMaxTokens$ = (threadId: string) =>
+    objectVal<number>(
+      ref(this.db, `${this.threadConfigPath(threadId)}/max_tokens`)
+    );
 
   threadMetadata$ = (threadId: string) =>
     objectVal<any>(ref(this.db, this.threadMetadataPath(threadId)));

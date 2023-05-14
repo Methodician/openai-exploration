@@ -47,6 +47,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 // checkbox
 import { MatCheckboxModule } from '@angular/material/checkbox';
+// progress spinner
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Internal
 import { AppRoutingModule } from './app-routing.module';
@@ -106,6 +108,7 @@ import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-pr
     MatSelectModule,
     MatSliderModule,
     MatCheckboxModule,
+    MatProgressSpinnerModule,
   ],
   providers: [
     {
