@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import {
   ThreadConfig,
   ThreadMessage,
@@ -18,6 +18,7 @@ import { ThreadPreferencesDialogComponent } from '../dialogs/thread-preferences-
   styleUrls: ['./thread.component.scss'],
 })
 export class ThreadComponent implements OnInit {
+  private unsubscribe$ = new Subject<void>();
   @ViewChild('messageHistory', { read: ElementRef })
   private messageHistory?: ElementRef;
   preferences: ThreadPrefs = {
@@ -35,71 +36,90 @@ export class ThreadComponent implements OnInit {
     private headerService: HeaderService,
     private threadService: ThreadService,
     private activeRoute: ActivatedRoute,
+    private router: Router,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.headerService.isTitleClickable$.next(true);
-    this.activeRoute.params.subscribe((params) => {
-      const threadId = params['threadId'];
-      if (threadId) {
-        this.threadId = threadId;
+    this.activeRoute.params
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((params) => {
+        const threadId = params['threadId'];
+        if (threadId) {
+          this.threadId = threadId;
 
-        let lastLoadingState = false;
-        this.threadService.threadMetadata$(threadId).subscribe((metadata) => {
-          if (metadata) {
-            if (lastLoadingState !== metadata.isAiGenerating) {
-              setTimeout(() => {
-                // pushes down the call stack so the element has a chance to exist
-                if (this.messageHistory?.nativeElement) {
-                  this.scrollToBottom();
+          let lastLoadingState = false;
+          this.threadService
+            .threadMetadata$(threadId)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((metadata) => {
+              if (metadata) {
+                if (lastLoadingState !== metadata.isAiGenerating) {
+                  setTimeout(() => {
+                    // pushes down the call stack so the element has a chance to exist
+                    if (this.messageHistory?.nativeElement) {
+                      this.scrollToBottom();
+                    }
+                  });
+                  lastLoadingState = metadata.isAiGenerating;
                 }
-              });
-              lastLoadingState = metadata.isAiGenerating;
-            }
-            this.metadata$.next(metadata);
-            this.headerService.setHeaderText(metadata.name);
-          }
-        });
-
-        this.threadService.threadMaxTokens$(threadId).subscribe((maxTokens) => {
-          if (maxTokens) {
-            this.threadMaxTokens$.next(maxTokens);
-          }
-        });
-
-        this.threadService.threadMessages$(threadId).subscribe((messages) => {
-          if (messages) {
-            this.messages$.next(messages);
-            setTimeout(() => {
-              // pushes down the call stack so the element has a chance to exist
-              if (this.messageHistory?.nativeElement) {
-                this.scrollToBottom();
+                this.metadata$.next(metadata);
+                this.headerService.setHeaderText(metadata.name);
               }
             });
-          }
-        });
 
-        this.threadService
-          .threadPreferences$(threadId)
-          .subscribe((preferences) => {
-            if (preferences) {
-              this.preferences = preferences;
-            }
-          });
-      }
-    });
+          this.threadService
+            .threadMaxTokens$(threadId)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((maxTokens) => {
+              if (maxTokens) {
+                this.threadMaxTokens$.next(maxTokens);
+              }
+            });
 
-    this.headerService.otherStuffClicked$.subscribe(() => {
-      this.openThreadPrefsDialog();
-    });
+          this.threadService
+            .threadMessages$(threadId)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((messages) => {
+              if (messages) {
+                this.messages$.next(messages);
+                setTimeout(() => {
+                  // pushes down the call stack so the element has a chance to exist
+                  if (this.messageHistory?.nativeElement) {
+                    this.scrollToBottom();
+                  }
+                });
+              }
+            });
 
-    this.headerService.titleClicked$.subscribe(() => {
-      this.renameThread();
-    });
+          this.threadService
+            .threadPreferences$(threadId)
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((preferences) => {
+              if (preferences) {
+                this.preferences = preferences;
+              }
+            });
+        }
+      });
+
+    this.headerService.otherStuffClicked$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => {
+        this.openThreadPrefsDialog();
+      });
+
+    this.headerService.titleClicked$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => {
+        this.renameThread();
+      });
   }
 
   ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
     this.headerService.isTitleClickable$.next(false);
     this.headerService.setHeaderText('AI Power User');
   }
@@ -117,12 +137,24 @@ export class ThreadComponent implements OnInit {
 
     dialogRef
       .afterClosed()
-      .subscribe((result?: { config: ThreadConfig; prefs: ThreadPrefs }) => {
-        if (!result) {
-          return;
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        (result?: {
+          config: ThreadConfig;
+          prefs: ThreadPrefs;
+          shouldDelete: boolean;
+        }) => {
+          if (!result) {
+            return;
+          }
+          if (result.shouldDelete) {
+            this.deleteThread();
+            return;
+          } else {
+            this.saveConfig(result.config, result.prefs);
+          }
         }
-        this.saveConfig(result.config, result.prefs);
-      });
+      );
   };
 
   renameThread = () => {
@@ -140,6 +172,14 @@ export class ThreadComponent implements OnInit {
     }
     this.threadService.updateThreadConfig(this.threadId, config);
     this.threadService.updateThreadPrefs(this.threadId, prefs);
+  };
+
+  deleteThread = async () => {
+    if (!this.threadId) {
+      throw new Error('No thread id');
+    }
+    await this.threadService.deleteThread(this.threadId);
+    this.router.navigate(['/']);
   };
 
   scrollToBottom = () => {

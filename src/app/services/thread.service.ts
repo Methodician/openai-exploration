@@ -5,6 +5,7 @@ import {
   objectVal,
   push,
   ref,
+  remove,
   set,
   update,
 } from '@angular/fire/database';
@@ -104,6 +105,9 @@ export class ThreadService {
 
   submitThreadToAi = (threadId: string) =>
     httpsCallable(this.functions, 'submitChatThread')({ threadId });
+
+  deleteThread = (threadId: string) =>
+    remove(ref(this.db, this.threadPath(threadId)));
 
   getAvailableModels = async () => {
     const getModels = httpsCallable(this.functions, 'getAvailableModels');

@@ -42,16 +42,22 @@ export const createNewChatThread = functions.https.onCall(async () => {
   const model = env.openaiModel;
   const config: ThreadConfig = {
     model,
+    max_tokens: env.maxTokens || 3000,
+    temperature: 1,
+    top_p: 1,
+    n: 1,
+    presence_penalty: 0.0,
+    frequency_penalty: 0.0,
   };
   const metadata: ThreadMetadata = {
     name: 'Unnamed Thread',
-    messageCount: 1,
-    tokenCount: 11,
+    messageCount: 0,
+    tokenCount: 0,
     isAiGenerating: false,
   };
   const preferences = {
     shouldSendOnEnter: true,
-    shouldAutoSubmit: true,
+    shouldAutoSubmit: false,
   };
   const systemMessage = {
     role: 'system',
@@ -201,67 +207,110 @@ export const submitChatThread = functions
     return isGeneratingRef.set(false);
   });
 
-export const onMessageWrite = functions.database
+const countMessageTokens = (message: RequestMessage | ThreadMessage) => {
+  const encoding = encoding_for_model('gpt-4'); // should be dynamic
+  const tokensPerMessage = 3; // gpt-4 & may change later
+  const tokensPerName = 1; // gpt-4 & may change later
+  let newTokenCount = tokensPerMessage;
+  for (const [key, val] of Object.entries(message)) {
+    if (key === 'tokenCount') continue;
+    if (val && typeof val === 'string') {
+      newTokenCount += encoding.encode(val).length;
+    }
+    if (key === 'name') {
+      newTokenCount += tokensPerName;
+    }
+  }
+  return newTokenCount;
+};
+
+export const onMessageCreate = functions.database
   .ref('/threadMessages/{threadId}/{messageId}')
-  .onWrite(async (change, context) => {
-    // get the thread ID and messageId
+  .onCreate(async (snapshot, context) => {
     const { threadId } = context.params;
+    const message = snapshot.val() as ThreadMessage;
+    const newTokenCount = countMessageTokens(message);
+    const threadMessageCountRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/messageCount`);
     const threadTokenCountRef = admin
       .database()
       .ref(`/threadMetadata/${threadId}/tokenCount`);
-    const threadTokenCountSnap = await threadTokenCountRef.get();
-    let threadTokenCount = threadTokenCountSnap.val() as number;
-    // get the message data
-    const oldMessage = change.before.val() as ThreadMessage;
-    const newMessage = change.after.val() as ThreadMessage;
-
-    // if there is an old and not a new, it was deleted, so just reduce the thread token count
-    if (oldMessage && !newMessage) {
-      if (
-        oldMessage.tokenCount === undefined ||
-        threadTokenCount - oldMessage.tokenCount < 1
-      ) {
-        threadTokenCount = 0;
-      } else {
-        threadTokenCount -= oldMessage.tokenCount;
-      }
-      return threadTokenCountRef.set(threadTokenCount);
-    }
-
-    if (oldMessage && newMessage) {
-      if (oldMessage.content === newMessage.content) {
-        return;
-      }
-      // it was an edit, so we need to reduce the thread token count before adding the new one
-      threadTokenCount -= oldMessage.tokenCount || 0;
-    }
-
-    // I think from here we can assume there is a new message...
-
-    // get only the content, role, and name from the message
-    const { content, role, name } = newMessage;
-    const newRequestMessage: RequestMessage = {
-      content,
-      role,
-      name,
-    };
-
-    const encoding = encoding_for_model('gpt-4'); // should be dynamic
-    const tokensPerMessage = 3; // gpt-4 & may change later
-    const tokensPerName = 1; // gpt-4 & may change later
-    let newTokenCount = tokensPerMessage;
-    for (const [key, val] of Object.entries(newRequestMessage)) {
-      if (val) {
-        newTokenCount += encoding.encode(val).length;
-      }
-      if (key === 'name') {
-        newTokenCount += tokensPerName;
-      }
-    }
-    threadTokenCount += newTokenCount;
 
     return Promise.all([
-      threadTokenCountRef.set(threadTokenCount),
-      change.after.ref.update({ tokenCount: newTokenCount }),
+      snapshot.ref.child('tokenCount').set(newTokenCount),
+      threadTokenCountRef.transaction(
+        (currentTokenCount) => currentTokenCount + newTokenCount
+      ),
+      threadMessageCountRef.transaction(
+        (currentMessageCount) => currentMessageCount + 1
+      ),
+    ]);
+  });
+
+export const onMessageUpdate = functions.database
+  .ref('/threadMessages/{threadId}/{messageId}')
+  .onUpdate(async (change, context) => {
+    const { threadId } = context.params;
+    const newMessage = change.after.val() as ThreadMessage;
+    const oldMessage = change.before.val() as ThreadMessage;
+    if (newMessage.content === oldMessage.content) return null;
+    const newTokenCount = countMessageTokens(newMessage);
+    const oldTokenCount = oldMessage.tokenCount || 0;
+    const messageTokensRef = change.after.ref.child('tokenCount');
+    const threadTokenCountRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/tokenCount`);
+
+    return Promise.all([
+      messageTokensRef.set(newTokenCount),
+      threadTokenCountRef.transaction(
+        (currentTokenCount) => currentTokenCount - oldTokenCount + newTokenCount
+      ),
+    ]);
+  });
+
+export const onMessageDelete = functions.database
+  .ref('/threadMessages/{threadId}/{messageId}')
+  .onDelete(async (snapshot, context) => {
+    const { threadId } = context.params;
+    const message = snapshot.val() as ThreadMessage;
+    const messageTokenCount = message.tokenCount || 0;
+    const threadTokenCountRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/tokenCount`);
+    const threadMessageCountRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/messageCount`);
+    const threadTokenSnap = await threadTokenCountRef.get();
+    const threadTokenCount = threadTokenSnap.val() as number;
+    if (!threadTokenCount) {
+      return;
+    }
+
+    return Promise.all([
+      threadTokenCountRef.transaction(
+        (currentTokenCount) => currentTokenCount - messageTokenCount
+      ),
+      threadMessageCountRef.transaction(
+        (currentMessageCount) => currentMessageCount - 1
+      ),
+    ]);
+  });
+
+export const onThreadDelete = functions.database
+  .ref('/threads/{threadId}')
+  .onDelete(async (snapshot, context) => {
+    const { threadId } = context.params;
+    const threadMetadataRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}`);
+    const threadMessagesRef = admin
+      .database()
+      .ref(`/threadMessages/${threadId}`);
+
+    return Promise.all([
+      threadMetadataRef.remove(),
+      threadMessagesRef.remove(),
     ]);
   });

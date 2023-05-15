@@ -16,7 +16,7 @@ interface ModelSelection {
 export class ThreadPreferencesDialogComponent {
   thread$ = this.threadService.thread$(this.data.threadId);
   threadPrefs: ThreadPrefs = {
-    shouldAutoSubmit: true,
+    shouldAutoSubmit: false,
     shouldSendOnEnter: true,
   };
   threadConfig: ThreadConfig = {
@@ -80,15 +80,30 @@ export class ThreadPreferencesDialogComponent {
     });
   }
 
-  onModelSelect(event: Event) {
+  onModelSelect = (event: Event) => {
     const model = (event.target as HTMLSelectElement).value;
     this.threadConfig.model = model;
-  }
+  };
 
-  onSubmit() {
+  onSubmit = () => {
     this.dialogRef.close({
       config: this.threadConfig,
       prefs: this.threadPrefs,
+      shouldDelete: false,
     });
-  }
+  };
+
+  onDelete = () => {
+    const shouldDelete = confirm(
+      'Are you sure you want to delete this thread? This cannot be undone.'
+    );
+    if (!shouldDelete) {
+      return;
+    }
+    this.dialogRef.close({
+      config: this.threadConfig,
+      prefs: this.threadPrefs,
+      shouldDelete: true,
+    });
+  };
 }
