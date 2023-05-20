@@ -20,7 +20,7 @@ modelWatcher.on('change', (path) => {
   });
 });
 
-const watcherWatcher = chokidar.watch('./fileWatcher.ts', {
+const watcherWatcher = chokidar.watch('./file-watcher.ts', {
   persistent: true,
   usePolling: true,
   interval: 4000,
@@ -29,7 +29,7 @@ const watcherWatcher = chokidar.watch('./fileWatcher.ts', {
 watcherWatcher.on('change', (path) => {
   log(`File ${path} has been changed`);
   log('This shit is so meta...');
-  exec('tsc fileWatcher.ts', (err, stdout, stderr) => {
+  exec('tsc file-watcher.ts', (err, stdout, stderr) => {
     if (err) {
       console.error(err);
       return;
