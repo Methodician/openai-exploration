@@ -82,17 +82,17 @@ import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-pr
     provideAuth(() => getAuth()),
     provideDatabase(() => {
       const db = getDatabase();
-      if (!environment.production) {
-        connectDatabaseEmulator(db, 'localhost', 9000);
-      }
+      // if (!environment.production) {
+      //   connectDatabaseEmulator(db, 'localhost', 9000);
+      // }
       return db;
     }),
     provideFirestore(() => getFirestore()),
     provideFunctions(() => {
       const functions = getFunctions();
-      if (!environment.production) {
-        connectFunctionsEmulator(functions, 'localhost', 5001);
-      }
+      // if (!environment.production) {
+      //   connectFunctionsEmulator(functions, 'localhost', 5001);
+      // }
       return functions;
     }),
     provideMessaging(() => getMessaging()),
