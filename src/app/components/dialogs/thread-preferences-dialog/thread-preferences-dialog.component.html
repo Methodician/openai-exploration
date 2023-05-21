@@ -66,6 +66,21 @@
       >Auto submit to AI?</mat-checkbox
     >
   </mat-card>
+  <button
+    mat-stroked-button
+    (click)="shouldShowLastResponse = true"
+    *ngIf="!shouldShowLastResponse"
+  >
+    Show Last Response
+  </button>
+  <mat-card *ngIf="shouldShowLastResponse">
+    <button (click)="shouldShowLastResponse = false" mat-stroked-button>
+      Hide Last Response
+    </button>
+    <pre class="last-response">
+      {{ lastResponse | json }}
+    </pre>
+  </mat-card>
 </mat-dialog-content>
 
 <mat-dialog-actions>

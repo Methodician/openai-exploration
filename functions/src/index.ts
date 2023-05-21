@@ -106,7 +106,7 @@ export const renameChatThread = functions.https.onCall(
       messages.push({
         role: 'user',
         content:
-          'Respond now with a creative and succinct description for this session. It can be a word, multiple words, or a phrase. It must be between 5 and 40 characters, and should succinctly describe the purpose of the session. Respond only with the new name and nothing else.',
+          'Respond now with a creative and succinct description for this session. It can be a word, multiple words, or a phrase. It must be between 5 and 30 characters, and should succinctly describe the purpose of the session. Respond only with the new name and nothing else.',
       });
 
       const request: ChatCompletionRequest = {
@@ -160,22 +160,35 @@ export const submitChatThread = functions
     const wasLastResponseErrorRef = admin
       .database()
       .ref(`/threadMetadata/${threadId}/wasLastResponseError`);
+    const tokenCountRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/tokenCount`);
     const messagesRef = admin.database().ref(`/threadMessages/${threadId}`);
     const lastSuccessRef = admin
       .database()
       .ref(`/threads/${threadId}/lastSuccessResponse`);
     const lastErrorRef = admin.database().ref(`/threads/${threadId}/lastError`);
-    const [configSnap, messagesSnap] = await Promise.all([
+    const [configSnap, messagesSnap, tokenCountSnap] = await Promise.all([
       configRef.get(),
       messagesRef.get(),
+      tokenCountRef.get(),
     ]);
     const config = configSnap.val() as ThreadConfig;
+    if (!config.max_tokens) {
+      // This could instead just default to the max tokens for the given model...
+      throw new Error('Max tokens must be set');
+    }
     const messages = Object.values<ThreadMessage>(
       messagesSnap.val()
     ).map<RequestMessage>(({ content, role }) => ({
       content,
       role,
     }));
+
+    // This is a bit of a hack to make sure we don't go over the max tokens
+    // Need to get better token estimation going...
+    const totalTokens = tokenCountSnap.val() || 10;
+    config.max_tokens = config.max_tokens - totalTokens - 4;
 
     const request: ChatCompletionRequest = {
       messages,

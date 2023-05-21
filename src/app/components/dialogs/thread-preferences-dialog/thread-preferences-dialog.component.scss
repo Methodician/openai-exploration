@@ -8,6 +8,7 @@
 
   .thread-prefs {
     margin-top: 20px;
+    margin-bottom: 10px;
   }
 
   .slider-wrapper {
@@ -24,5 +25,9 @@
       width: 5ch; // Width to hold up to 5 characters/digits
       text-align: right;
     }
+  }
+
+  .last-response {
+    white-space: pre-wrap;
   }
 }

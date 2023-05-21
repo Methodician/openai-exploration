@@ -28,6 +28,9 @@ export class ThreadPreferencesDialogComponent {
     frequency_penalty: 0.0,
     max_tokens: 4096,
   };
+  lastResponse?: any;
+  shouldShowLastResponse = false;
+
   models: ModelSelection[] = [
     { value: 'gpt-4', viewValue: 'GPT-4' },
     { value: 'gpt-4-0314', viewValue: 'GPT-4 (3/14)' },
@@ -76,6 +79,7 @@ export class ThreadPreferencesDialogComponent {
           ...this.threadConfig,
           ...(thread.config || {}),
         };
+        this.lastResponse = thread.lastSuccessResponse;
       }
     });
   }
