@@ -42,6 +42,7 @@ export class ThreadComponent implements OnInit {
 
   ngOnInit(): void {
     this.headerService.isTitleClickable$.next(true);
+    this.headerService.isThereOtherStuff$.next(true);
     this.activeRoute.params
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
@@ -122,6 +123,7 @@ export class ThreadComponent implements OnInit {
     this.unsubscribe$.complete();
     this.headerService.isTitleClickable$.next(false);
     this.headerService.setHeaderText('AI Power User');
+    this.headerService.isThereOtherStuff$.next(false);
   }
 
   openThreadPrefsDialog = () => {

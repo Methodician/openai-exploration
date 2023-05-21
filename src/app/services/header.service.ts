@@ -7,6 +7,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 export class HeaderService {
   headerText$ = new BehaviorSubject<string>('GPT Pro');
   isTitleClickable$ = new BehaviorSubject<boolean>(false);
+  isThereOtherStuff$ = new BehaviorSubject<boolean>(false);
   titleClicked$ = new Subject<void>();
   otherStuffClicked$ = new Subject<void>();
 

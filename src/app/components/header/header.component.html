@@ -11,6 +11,12 @@
     >{{ headerText$ | async }}</span
   >
   <span class="right-nav">
-    <button mat-button (click)="onOtherStuffClicked()">other stuff</button>
+    <button
+      *ngIf="isThereOtherStuff$ | async"
+      mat-button
+      (click)="onOtherStuffClicked()"
+    >
+      other stuff
+    </button>
   </span>
 </mat-toolbar>
