@@ -54,6 +54,7 @@ export const createNewChatThread = functions.https.onCall(async () => {
     messageCount: 0,
     tokenCount: 0,
     isAiGenerating: false,
+    wasLastResponseError: false,
   };
   const preferences = {
     shouldSendOnEnter: true,
@@ -156,13 +157,14 @@ export const submitChatThread = functions
     const isGeneratingRef = admin
       .database()
       .ref(`/threadMetadata/${threadId}/isAiGenerating`);
+    const wasLastResponseErrorRef = admin
+      .database()
+      .ref(`/threadMetadata/${threadId}/wasLastResponseError`);
     const messagesRef = admin.database().ref(`/threadMessages/${threadId}`);
     const lastSuccessRef = admin
       .database()
       .ref(`/threads/${threadId}/lastSuccessResponse`);
-    const lastErrorRef = admin
-      .database()
-      .ref(`/threads/${threadId}/lastErrorResponse`);
+    const lastErrorRef = admin.database().ref(`/threads/${threadId}/lastError`);
     const [configSnap, messagesSnap] = await Promise.all([
       configRef.get(),
       messagesRef.get(),
@@ -181,6 +183,7 @@ export const submitChatThread = functions
     };
 
     try {
+      wasLastResponseErrorRef.set(false);
       isGeneratingRef.set(true);
       const response = await openai.createChatCompletion(request);
       const responseData = response.data;
@@ -196,18 +199,20 @@ export const submitChatThread = functions
 
       return isGeneratingRef.set(false);
     } catch (error: any) {
-      await isGeneratingRef.set(false);
-      await lastErrorRef.set(error.stack);
-      if (error.stack?.message) {
-        console.error('error stack message:');
-        console.log(error.stack.message);
-      } else if (error.response) {
+      await Promise.all([
+        isGeneratingRef.set(false),
+        wasLastResponseErrorRef.set(true),
+      ]);
+
+      if (error.response) {
         console.error('error status and error data:');
         console.log(error.response.status);
         console.log(error.response.data);
+        await lastErrorRef.set(error.response.data);
       } else {
         console.error('error message:');
         console.log(error.message);
+        await lastErrorRef.set(error.message);
       }
 
       return;

@@ -13,21 +13,14 @@
         (onMessageDelete)="deleteMessage($event)"
       ></app-message>
     </ng-container>
-    <mat-card
+
+    <app-loading-message
       *ngIf="(metadata$ | async)?.isAiGenerating"
-      class="loading-indicator"
-    >
-      <mat-card-header>
-        <mat-card-title> assistant </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-progress-spinner
-          mode="indeterminate"
-          diameter="65"
-          strokeWidth="8"
-        ></mat-progress-spinner>
-      </mat-card-content>
-    </mat-card>
+    ></app-loading-message>
+    <app-error-message
+      *ngIf="(metadata$ | async)?.wasLastResponseError"
+      [threadId]="threadId"
+    ></app-error-message>
   </mat-card>
   <section class="footer">
     <div class="left-part">

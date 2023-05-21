@@ -30,6 +30,7 @@ export class ThreadService {
 
   constructor() {}
 
+  // ToDo: make these shared with functions folder
   private threadMetadataPath = (threadId: string) =>
     `threadMetadata/${threadId}`;
   private threadMessagesPath = (threadId: string) =>
@@ -41,6 +42,8 @@ export class ThreadService {
     `${this.threadPath(threadId)}/config`;
   private threadPreferencesPath = (threadId: string) =>
     `${this.threadPath(threadId)}/preferences`;
+  private lastThreadErrorPath = (threadId: string) =>
+    `${this.threadPath(threadId)}/lastError`;
 
   allThreads$ = () => {
     return listVal<ThreadMetadata>(ref(this.db, 'threadMetadata'), {
@@ -73,6 +76,9 @@ export class ThreadService {
 
   threadMetadata$ = (threadId: string) =>
     objectVal<any>(ref(this.db, this.threadMetadataPath(threadId)));
+
+  lastThreadError$ = (threadId: string) =>
+    objectVal<string>(ref(this.db, this.lastThreadErrorPath(threadId)));
 
   createNewThread$ = () =>
     httpsCallableData<any>(this.functions, 'createNewChatThread')();

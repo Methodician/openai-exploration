@@ -53,6 +53,7 @@ export type ThreadMetadata = {
   messageCount: number;
   tokenCount: number;
   isAiGenerating: boolean;
+  wasLastResponseError: boolean;
 };
 
 export type ChatMessageRole = 'system' | 'user' | 'assistant';

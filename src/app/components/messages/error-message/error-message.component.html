@@ -1,0 +1,12 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title> <mat-icon>error</mat-icon> error </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p>Something went wrong. Please try again.</p>
+    <p>error stack:</p>
+    <pre>
+        {{ error$ | async | json }}
+    </pre>
+  </mat-card-content>
+</mat-card>

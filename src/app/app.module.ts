@@ -55,11 +55,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { ModelSelectComponent } from './components/model-select/model-select.component';
-import { MessageComponent } from './components/message/message.component';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ThreadComponent } from './components/thread/thread.component';
 import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-preferences-dialog/thread-preferences-dialog.component';
+import { MessageComponent } from './components/messages/message/message.component';
+import { ErrorMessageComponent } from './components/messages/error-message/error-message.component';
+import { LoadingMessageComponent } from './components/messages/loading-message/loading-message.component';
 
 @NgModule({
   declarations: [
@@ -70,6 +72,8 @@ import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-pr
     HeaderComponent,
     ThreadComponent,
     ThreadPreferencesDialogComponent,
+    ErrorMessageComponent,
+    LoadingMessageComponent,
   ],
   imports: [
     BrowserModule,

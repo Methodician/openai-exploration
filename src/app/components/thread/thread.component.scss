@@ -11,21 +11,6 @@
   padding: 20px;
   gap: 20px;
   overflow-y: auto;
-
-  .loading-indicator {
-    background-color: #063e21;
-
-    mat-card-header {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-    }
-    mat-card-content {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  }
 }
 
 mat-list-item.user-message {
