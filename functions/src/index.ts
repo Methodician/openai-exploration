@@ -193,9 +193,15 @@ export const submitChatThread = functions
         messagesRef.push(newMessage),
         lastSuccessRef.set(responseData),
       ]);
+
+      return isGeneratingRef.set(false);
     } catch (error: any) {
-      lastErrorRef.set(error);
-      if (error.response) {
+      await isGeneratingRef.set(false);
+      await lastErrorRef.set(error.stack);
+      if (error.stack?.message) {
+        console.error('error stack message:');
+        console.log(error.stack.message);
+      } else if (error.response) {
         console.error('error status and error data:');
         console.log(error.response.status);
         console.log(error.response.data);
@@ -203,8 +209,9 @@ export const submitChatThread = functions
         console.error('error message:');
         console.log(error.message);
       }
+
+      return;
     }
-    return isGeneratingRef.set(false);
   });
 
 const countMessageTokens = (message: RequestMessage | ThreadMessage) => {
