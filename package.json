@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --disable-host-check true",
     "build": "ng build && npm run copy-models",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "watch-files": "node fileWatcher.js",
+    "emulate": "firebase emulators:start",
+    "watch-files": "node file-watcher.js",
     "copy-models": "copyfiles -f src/app/models/shared.ts functions/src/models/generated"
   },
   "private": true,
@@ -36,6 +37,7 @@
     "@types/jasmine": "~4.3.0",
     "chokidar": "^3.5.3",
     "copyfiles": "^2.4.1",
+    "firebase-tools": "^11.30.0",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",

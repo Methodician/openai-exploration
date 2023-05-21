@@ -36,7 +36,7 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
-fileWatcher.js
+file-watcher.js
 
 # System files
 .DS_Store
