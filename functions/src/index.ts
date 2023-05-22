@@ -11,6 +11,10 @@ import {
   ThreadMetadata,
 } from './models/generated/shared';
 
+import * as cors from 'cors';
+// import {CorsOptions} from 'cors'; // could be used to set up multiple origins
+const corsHandler = cors({ origin: true });
+
 admin.initializeApp();
 
 const env = {
@@ -28,12 +32,25 @@ const openaiConfig = new Configuration({
 
 const openai = new OpenAIApi(openaiConfig);
 
-export const getAvailableModels = functions.https.onCall(async () => {
-  const modelsResponse = await openai.listModels();
-  const models = modelsResponse.data.data;
+export const getAvailableModels = functions.https.onRequest(
+  async (req, res) => {
+    corsHandler(req, res, async () => {
+      if (req.method !== 'GET') {
+        res.status(405).send('Method Not Allowed');
+        return;
+      }
 
-  return models;
-});
+      try {
+        const modelsResponse = await openai.listModels();
+        const models = modelsResponse.data.data;
+        res.status(200).send(models);
+      } catch (error) {
+        console.error('Unable to get models: ', error);
+        res.status(500).send('Unable to get models');
+      }
+    });
+  }
+);
 
 // Might actually save these to Firestore instead of Realtime Database, but maybe just for long-term?
 // I think in a prod app each user might have a single active thread in rtdb, and then a history of threads in firestore

@@ -31,6 +31,7 @@ export class ThreadPreferencesDialogComponent {
   lastResponse?: any;
   shouldShowLastResponse = false;
 
+  // Note: this would need to be updated manually if the available models change
   models: ModelSelection[] = [
     { value: 'gpt-4', viewValue: 'GPT-4' },
     { value: 'gpt-4-0314', viewValue: 'GPT-4 (3/14)' },
@@ -65,10 +66,11 @@ export class ThreadPreferencesDialogComponent {
   ) {}
 
   ngOnInit(): void {
-    this.threadService.getAvailableModels().then((models: any) => {
-      const modelIds = models.filter((m: any) => !!m.id).map((m: any) => m.id);
+    this.threadService.availableModels$().subscribe((models) => {
+      const modelIds = models.filter((m) => !!m.id).map((m) => m.id);
       this.models = this.models.filter((m) => modelIds.includes(m.value));
     });
+
     this.thread$.subscribe((thread) => {
       if (thread) {
         this.threadPrefs = {

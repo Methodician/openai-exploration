@@ -15,11 +15,13 @@ import {
   httpsCallableData,
 } from '@angular/fire/functions';
 import {
+  OpenaiModel,
   ThreadConfig,
   ThreadMessage,
   ThreadMetadata,
   ThreadPrefs,
 } from '../models/shared';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +30,7 @@ export class ThreadService {
   private db: Database = inject(Database);
   private functions = inject(Functions);
 
-  constructor() {}
+  constructor(private httpClient: HttpClient) {}
 
   // ToDo: make these shared with functions folder
   private threadMetadataPath = (threadId: string) =>
@@ -115,9 +117,8 @@ export class ThreadService {
   deleteThread = (threadId: string) =>
     remove(ref(this.db, this.threadPath(threadId)));
 
-  getAvailableModels = async () => {
-    const getModels = httpsCallable(this.functions, 'getAvailableModels');
-    const result = await getModels();
-    return result.data;
-  };
+  availableModels$ = () =>
+    this.httpClient.get<OpenaiModel[]>(
+      'https://us-central1-openai-exploration-9d32c.cloudfunctions.net/getAvailableModels'
+    );
 }
