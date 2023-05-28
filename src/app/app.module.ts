@@ -10,7 +10,7 @@ import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 
 // NgFire
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideAuth, getAuth, connectAuthEmulator } from '@angular/fire/auth';
 import {
   provideDatabase,
   getDatabase,
@@ -63,6 +63,7 @@ import { ThreadPreferencesDialogComponent } from './components/dialogs/thread-pr
 import { MessageComponent } from './components/messages/message/message.component';
 import { ErrorMessageComponent } from './components/messages/error-message/error-message.component';
 import { LoadingMessageComponent } from './components/messages/loading-message/loading-message.component';
+import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin-dialog.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { LoadingMessageComponent } from './components/messages/loading-message/l
     ThreadPreferencesDialogComponent,
     ErrorMessageComponent,
     LoadingMessageComponent,
+    SigninDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -85,7 +87,13 @@ import { LoadingMessageComponent } from './components/messages/loading-message/l
     AppRoutingModule,
     HighlightModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
+    provideAuth(() => {
+      const auth = getAuth();
+      if (!environment.production) {
+        connectAuthEmulator(auth, 'http://localhost:9099');
+      }
+      return auth;
+    }),
     provideDatabase(() => {
       const db = getDatabase();
       if (!environment.production) {

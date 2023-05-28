@@ -68,6 +68,7 @@
   </mat-card>
   <button
     mat-stroked-button
+    class="last-response-button"
     (click)="shouldShowLastResponse = true"
     *ngIf="!shouldShowLastResponse"
   >
@@ -78,13 +79,14 @@
       Hide Last Response
     </button>
     <pre class="last-response">
-      {{ lastResponse | json }}
-    </pre>
+    {{ lastResponse | json }}
+  </pre
+    >
   </mat-card>
 </mat-dialog-content>
 
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSubmit()">Save</button>
+  <button mat-raised-button color="primary" (click)="onSave()">Save</button>
   <button mat-raised-button color="warn" (click)="onDelete()">Delete</button>
 </mat-dialog-actions>

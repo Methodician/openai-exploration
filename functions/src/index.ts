@@ -54,54 +54,70 @@ export const getAvailableModels = functions.https.onRequest(
 
 // Might actually save these to Firestore instead of Realtime Database, but maybe just for long-term?
 // I think in a prod app each user might have a single active thread in rtdb, and then a history of threads in firestore
-export const createNewChatThread = functions.https.onCall(async () => {
-  // Here I would probably track the user's ID and create a new thread for them
-  const model = env.openaiModel;
-  const config: ThreadConfig = {
-    model,
-    max_tokens: env.maxTokens || 3000,
-    temperature: 1,
-    top_p: 1,
-    n: 1,
-    presence_penalty: 0.0,
-    frequency_penalty: 0.0,
-  };
-  const metadata: ThreadMetadata = {
-    name: 'Unnamed Thread',
-    messageCount: 0,
-    tokenCount: 0,
-    isAiGenerating: false,
-    wasLastResponseError: false,
-  };
-  const preferences = {
-    shouldSendOnEnter: true,
-    shouldAutoSubmit: false,
-  };
-  const systemMessage = {
-    role: 'system',
-    content: 'You are a helpful AI assistant.',
-    tokenCount: 11,
-  };
+export const createNewChatThread = functions.https.onCall(
+  async (_, context) => {
+    // Here I would probably track the user's ID and create a new thread for them
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'You must be signed in to call this function'
+      );
+    }
 
-  const threadRef = admin.database().ref('/threads').push({
-    config,
-    preferences,
-  });
+    const model = env.openaiModel;
+    const config: ThreadConfig = {
+      model,
+      max_tokens: env.maxTokens || 3000,
+      temperature: 1,
+      top_p: 1,
+      n: 1,
+      presence_penalty: 0.0,
+      frequency_penalty: 0.0,
+    };
+    const metadata: ThreadMetadata = {
+      name: 'Unnamed Thread',
+      messageCount: 0,
+      tokenCount: 0,
+      isAiGenerating: false,
+      wasLastResponseError: false,
+    };
+    const preferences = {
+      shouldSendOnEnter: true,
+      shouldAutoSubmit: true,
+    };
+    const systemMessage = {
+      role: 'system',
+      content: 'You are a helpful AI assistant.',
+      tokenCount: 11,
+    };
 
-  const key = threadRef.key;
-  const threadMessagesRef = admin.database().ref(`/threadMessages/${key}`);
-  const threadMetadataRef = admin.database().ref(`/threadMetadata/${key}`);
+    const threadRef = admin.database().ref('/threads').push({
+      config,
+      preferences,
+    });
 
-  await Promise.all([
-    threadMetadataRef.set(metadata),
-    threadMessagesRef.push(systemMessage),
-  ]);
+    const key = threadRef.key;
+    const threadMessagesRef = admin.database().ref(`/threadMessages/${key}`);
+    const threadMetadataRef = admin.database().ref(`/threadMetadata/${key}`);
 
-  return threadRef.key;
-});
+    await Promise.all([
+      threadMetadataRef.set(metadata),
+      threadMessagesRef.push(systemMessage),
+    ]);
+
+    return threadRef.key;
+  }
+);
 
 export const renameChatThread = functions.https.onCall(
   async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'You must be signed in to call this function'
+      );
+    }
+    
     const { threadId, name } = data as { threadId: string; name?: string };
     let newName = name || '';
     if (!threadId) {
@@ -165,6 +181,12 @@ export const renameChatThread = functions.https.onCall(
 export const submitChatThread = functions
   .runWith({ timeoutSeconds: 540 })
   .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'You must be signed in to call this function'
+      );
+    }
     const { threadId } = data;
     if (!threadId) {
       throw new Error('No thread id');

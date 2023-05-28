@@ -14,6 +14,7 @@ interface ModelSelection {
   styleUrls: ['./thread-preferences-dialog.component.scss'],
 })
 export class ThreadPreferencesDialogComponent {
+  // TODO: break this down into multiple components. Could be in a parent "otherStuffDialog" idunno...
   thread$ = this.threadService.thread$(this.data.threadId);
   threadPrefs: ThreadPrefs = {
     shouldAutoSubmit: false,
@@ -91,7 +92,7 @@ export class ThreadPreferencesDialogComponent {
     this.threadConfig.model = model;
   };
 
-  onSubmit = () => {
+  onSave = () => {
     this.dialogRef.close({
       config: this.threadConfig,
       prefs: this.threadPrefs,

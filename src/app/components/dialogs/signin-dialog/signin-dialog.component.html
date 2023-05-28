@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>You need to log in...</h1>
+<div mat-dialog-content (keyup.enter)="onSignIn()">
+  <p>You need to log in for anything to work.</p>
+  <mat-form-field appearance="outline">
+    <label mat-label>Email</label>
+    <input [(ngModel)]="email" matInput type="email" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <label mat-label>Password</label>
+    <input [(ngModel)]="password" matInput type="password" />
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onSignIn()">Sign In</button>
+  <button mat-button mat-dialog-close>Cancel</button>
+</div>

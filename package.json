@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "emulate": "firebase emulators:start",
+    "watch-functions": "npm run build:watch --prefix functions",
     "watch-files": "node file-watcher.js",
     "copy-models": "copyfiles -f src/app/models/shared.ts functions/src/models/generated"
   },
