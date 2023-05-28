@@ -7,10 +7,10 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'openai-exploration';
+  authState$ = this.authService.authState$;
 
   constructor(private authService: AuthService) {
-    this.authService.authState$.subscribe((authState) => {
+    this.authState$.subscribe((authState) => {
       if (!authState) {
         this.authService.signIn();
       }
