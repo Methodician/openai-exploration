@@ -15,7 +15,9 @@ import * as cors from 'cors';
 // import {CorsOptions} from 'cors'; // could be used to set up multiple origins
 const corsHandler = cors({ origin: true });
 
-admin.initializeApp();
+admin.initializeApp({
+  databaseURL: 'https://openai-exploration-9d32c-default-rtdb.firebaseio.com',
+});
 
 const env = {
   openaiOrg: process.env.OPENAI_ORG,
@@ -117,7 +119,7 @@ export const renameChatThread = functions.https.onCall(
         'You must be signed in to call this function'
       );
     }
-    
+
     const { threadId, name } = data as { threadId: string; name?: string };
     let newName = name || '';
     if (!threadId) {
