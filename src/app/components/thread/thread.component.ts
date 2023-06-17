@@ -28,14 +28,14 @@ export class ThreadComponent implements OnInit {
   model = 'gpt-4';
   promptText = '';
   threadId?: string;
-  messages$ = new Subject<ThreadMessage[]>();
+  messages$ = this.threadService.threadMessages$;
   metadata$ = new Subject<ThreadMetadata>();
   threadMaxTokens$ = new Subject<number>();
 
   constructor(
     private headerService: HeaderService,
     private threadService: ThreadService,
-    private activeRoute: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private router: Router,
     public dialog: MatDialog
   ) {}
@@ -43,7 +43,7 @@ export class ThreadComponent implements OnInit {
   ngOnInit(): void {
     this.headerService.isTitleClickable$.next(true);
     this.headerService.isThereOtherStuff$.next(true);
-    this.activeRoute.params
+    this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
         const threadId = params['threadId'];
@@ -51,57 +51,57 @@ export class ThreadComponent implements OnInit {
           this.threadId = threadId;
 
           let lastLoadingState = false;
-          this.threadService
-            .threadMetadata$(threadId)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((metadata) => {
-              if (metadata) {
-                if (lastLoadingState !== metadata.isAiGenerating) {
-                  setTimeout(() => {
-                    // pushes down the call stack so the element has a chance to exist
-                    if (this.messageHistory?.nativeElement) {
-                      this.scrollToBottom();
-                    }
-                  });
-                  lastLoadingState = metadata.isAiGenerating;
-                }
-                this.metadata$.next(metadata);
-                this.headerService.setHeaderText(metadata.name);
-              }
-            });
+          // this.threadService
+          //   .threadMetadata$(threadId)
+          //   .pipe(takeUntil(this.unsubscribe$))
+          //   .subscribe((metadata) => {
+          //     if (metadata) {
+          //       if (lastLoadingState !== metadata.isAiGenerating) {
+          //         setTimeout(() => {
+          //           // pushes down the call stack so the element has a chance to exist
+          //           if (this.messageHistory?.nativeElement) {
+          //             this.scrollToBottom();
+          //           }
+          //         });
+          //         lastLoadingState = metadata.isAiGenerating;
+          //       }
+          //       this.metadata$.next(metadata);
+          //       this.headerService.setHeaderText(metadata.name);
+          //     }
+          //   });
 
-          this.threadService
-            .threadMaxTokens$(threadId)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((maxTokens) => {
-              if (maxTokens) {
-                this.threadMaxTokens$.next(maxTokens);
-              }
-            });
+          // this.threadService
+          //   .threadMaxTokens$(threadId)
+          //   .pipe(takeUntil(this.unsubscribe$))
+          //   .subscribe((maxTokens) => {
+          //     if (maxTokens) {
+          //       this.threadMaxTokens$.next(maxTokens);
+          //     }
+          //   });
 
-          this.threadService
-            .threadMessages$(threadId)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((messages) => {
-              if (messages) {
-                this.messages$.next(messages);
-                setTimeout(() => {
-                  // pushes down the call stack so the element has a chance to exist
-                  if (this.messageHistory?.nativeElement) {
-                    this.scrollToBottom();
-                  }
-                });
-              }
-            });
+          // this.threadService
+          //   .threadMessages$(threadId)
+          //   .pipe(takeUntil(this.unsubscribe$))
+          //   .subscribe((messages) => {
+          //     if (messages) {
+          //       this.messages$.next(messages);
+          //       setTimeout(() => {
+          //         // pushes down the call stack so the element has a chance to exist
+          //         if (this.messageHistory?.nativeElement) {
+          //           this.scrollToBottom();
+          //         }
+          //       });
+          //     }
+          //   });
 
-          this.threadService
-            .threadPreferences$(threadId)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((preferences) => {
-              if (preferences) {
-                this.preferences = preferences;
-              }
-            });
+          // this.threadService
+          //   .threadPreferences$(threadId)
+          //   .pipe(takeUntil(this.unsubscribe$))
+          //   .subscribe((preferences) => {
+          //     if (preferences) {
+          //       this.preferences = preferences;
+          //     }
+          //   });
         }
       });
 
@@ -165,15 +165,15 @@ export class ThreadComponent implements OnInit {
     }
     const name = prompt('Enter a new thread name, or nothing to auto generate');
 
-    this.threadService.renameThread(this.threadId, name);
+    // this.threadService.renameThread(this.threadId, name);
   };
 
   saveConfig = (config: ThreadConfig, prefs: ThreadPrefs) => {
     if (!this.threadId) {
       throw new Error('No thread id');
     }
-    this.threadService.updateThreadConfig(this.threadId, config);
-    this.threadService.updateThreadPrefs(this.threadId, prefs);
+    // this.threadService.updateThreadConfig(this.threadId, config);
+    // this.threadService.updateThreadPrefs(this.threadId, prefs);
   };
 
   deleteThread = async () => {
@@ -196,7 +196,7 @@ export class ThreadComponent implements OnInit {
       throw new Error('No thread id');
     }
 
-    this.threadService.sendUserMessage(this.threadId, this.promptText);
+    // this.threadService.sendUserMessage(this.threadId, this.promptText);
     this.promptText = '';
 
     if (this.preferences.shouldAutoSubmit) {
@@ -209,7 +209,7 @@ export class ThreadComponent implements OnInit {
       throw new Error('No thread id');
     }
 
-    this.threadService.submitThreadToAi(this.threadId);
+    // this.threadService.submitThreadToAi(this.threadId);
   };
 
   onEnterKeyDown = (e: Event): void => {
@@ -225,14 +225,14 @@ export class ThreadComponent implements OnInit {
     }
 
     const { key, newContent } = $event;
-    this.threadService.updateThreadMessage(this.threadId, key, newContent);
+    // this.threadService.updateThreadMessage(this.threadId, key, newContent);
   };
 
   deleteMessage = (messageKey: string) => {
     if (!this.threadId) {
       throw new Error('No thread id');
     }
-    this.threadService.deleteThreadMessage(this.threadId, messageKey);
+    // this.threadService.deleteThreadMessage(this.threadId, messageKey);
   };
 
   // helpers
