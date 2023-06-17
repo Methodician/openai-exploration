@@ -1,0 +1,20 @@
+<div class="message-history" #messageHistory>
+  <ng-container
+    *ngFor="
+      let message of messages$ | async;
+      index as i;
+      trackMessagesByContent
+    "
+  >
+    <app-message
+      [rawMessage]="message"
+      (onMessageUpdate)="updateMessage($event)"
+      (onMessageDelete)="deleteMessage($event)"
+    ></app-message>
+  </ng-container>
+
+  <app-loading-message *ngIf="isAiGenerating$ | async"></app-loading-message>
+  <app-error-message
+    *ngIf="(metadata$ | async)?.wasLastResponseError"
+  ></app-error-message>
+</div>

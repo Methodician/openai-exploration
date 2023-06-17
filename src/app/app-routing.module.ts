@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
-import { ThreadComponent } from './components/thread/thread.component';
+import { ThreadMessagesComponent } from './components/thread-messages/thread-messages.component';
 
 const routes: Routes = [
-  { path: 'chat/:threadId', component: ThreadComponent },
+  { path: 'chat/:threadId', component: ThreadMessagesComponent },
   { path: '', component: HomeComponent, pathMatch: 'full' },
 ];
 
