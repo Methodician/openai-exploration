@@ -1,4 +1,9 @@
-<div *ngIf="authState$ | async">
+<div class="app-shell" *ngIf="authState$ | async">
   <app-header></app-header>
-  <router-outlet></router-outlet>
+  <div class="main">
+    <router-outlet></router-outlet>
+  </div>
+  <app-thread-footer>
+    <!-- should go in a more flexible parent footer component? -->
+  </app-thread-footer>
 </div>

@@ -1,0 +1,9 @@
+.app-shell {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+
+  .main {
+    overflow-y: auto;
+  }
+}

@@ -64,6 +64,8 @@ import { MessageComponent } from './components/messages/message/message.componen
 import { ErrorMessageComponent } from './components/messages/error-message/error-message.component';
 import { LoadingMessageComponent } from './components/messages/loading-message/loading-message.component';
 import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin-dialog.component';
+import { ThreadFooterComponent } from './components/footer/thread-footer/thread-footer.component';
+import { ThreadMessagesComponent } from './components/thread-messages/thread-messages.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +79,8 @@ import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin
     ErrorMessageComponent,
     LoadingMessageComponent,
     SigninDialogComponent,
+    ThreadFooterComponent,
+    ThreadMessagesComponent,
   ],
   imports: [
     BrowserModule,
