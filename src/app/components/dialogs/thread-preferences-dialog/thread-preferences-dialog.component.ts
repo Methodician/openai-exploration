@@ -35,26 +35,20 @@ export class ThreadPreferencesDialogComponent {
   // Note: this would need to be updated manually if the available models change
   models: ModelSelection[] = [
     { value: 'gpt-4', viewValue: 'GPT-4' },
-    { value: 'gpt-4-0314', viewValue: 'GPT-4 (3/14)' },
     { value: 'gpt-4-32k', viewValue: 'GPT-4 (32k)' },
-    { value: 'gpt-4-32k-0314', viewValue: 'GPT-4 (32k, 3/14)' },
     { value: 'gpt-3.5-turbo', viewValue: 'GPT-3.5 Turbo' },
-    { value: 'gpt-3.5-turbo-0301', viewValue: 'GPT-3.5 Turbo (3/1)' },
+    { value: 'gpt-3.5-turbo-16k', viewValue: 'GPT-3.5 Turbo (16k)' },
   ];
   get maxTokens() {
     switch (this.threadConfig.model) {
       case 'gpt-4':
         return 8192;
-      case 'gpt-4-0314':
-        return 8192;
       case 'gpt-4-32k':
-        return 32768;
-      case 'gpt-4-32k-0314':
         return 32768;
       case 'gpt-3.5-turbo':
         return 4097;
-      case 'gpt-3.5-turbo-0301':
-        return 4097;
+      case 'gpt-3.5-turbo-16k':
+        return 16384;
       default:
         return 4097;
     }
@@ -68,6 +62,8 @@ export class ThreadPreferencesDialogComponent {
 
   ngOnInit(): void {
     this.threadService.availableModels$().subscribe((models) => {
+      const gptOnly = models.filter((m) => m.id.includes('gpt'));
+      console.log(gptOnly);
       const modelIds = models.filter((m) => !!m.id).map((m) => m.id);
       this.models = this.models.filter((m) => modelIds.includes(m.value));
     });
