@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build && npm run copy-models",
     "watch": "ng build --watch --configuration development",
+    "deploy-hosting": "firebase deploy --only hosting",
     "test": "ng test",
     "emulate": "firebase emulators:start",
     "watch-functions": "npm run build:watch --prefix functions",
