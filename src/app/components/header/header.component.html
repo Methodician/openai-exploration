@@ -13,10 +13,10 @@
   <span class="right-nav">
     <button
       *ngIf="isThereOtherStuff$ | async"
-      mat-button
+      mat-icon-button
       (click)="onOtherStuffClicked()"
     >
-      other stuff
+      <mat-icon>more_horiz</mat-icon>
     </button>
   </span>
 </mat-toolbar>

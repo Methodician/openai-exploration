@@ -164,8 +164,9 @@ export class ThreadComponent implements OnInit {
       throw new Error('No thread id');
     }
     const name = prompt('Enter a new thread name, or nothing to auto generate');
-
-    this.threadService.renameThread(this.threadId, name);
+    if (name !== null) {
+      this.threadService.renameThread(this.threadId, name);
+    }
   };
 
   saveConfig = (config: ThreadConfig, prefs: ThreadPrefs) => {
