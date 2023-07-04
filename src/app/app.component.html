@@ -1,6 +1,6 @@
 <div class="app-shell" *ngIf="authState$ | async">
   <app-header></app-header>
-  <div class="main">
+  <div class="main" #main>
     <router-outlet></router-outlet>
   </div>
   <app-footer-container></app-footer-container>

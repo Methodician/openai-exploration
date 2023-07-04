@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Subject, takeUntil } from 'rxjs';
 import { ThreadConfig, ThreadPrefs } from 'src/app/models/shared';
 import { ThreadService } from 'src/app/services/thread.service';
 
@@ -14,8 +15,8 @@ interface ModelSelection {
   styleUrls: ['./thread-preferences-dialog.component.scss'],
 })
 export class ThreadPreferencesDialogComponent {
+  private unsubscribe$ = new Subject<void>();
   // TODO: break this down into multiple components. Could be in a parent "otherStuffDialog" idunno...
-  thread$ = this.threadService.thread$(this.data.threadId);
   threadPrefs: ThreadPrefs = {
     shouldAutoSubmit: false,
     shouldSendOnEnter: true,
@@ -68,19 +69,40 @@ export class ThreadPreferencesDialogComponent {
       this.models = this.models.filter((m) => modelIds.includes(m.value));
     });
 
-    this.thread$.subscribe((thread) => {
-      if (thread) {
-        this.threadPrefs = {
-          ...this.threadPrefs,
-          ...(thread.preferences || {}),
-        };
-        this.threadConfig = {
-          ...this.threadConfig,
-          ...(thread.config || {}),
-        };
-        this.lastResponse = thread.lastSuccessResponse;
-      }
-    });
+    this.threadService.currentThreadPreferences$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((prefs) => {
+        if (prefs) {
+          this.threadPrefs = {
+            ...this.threadPrefs,
+            ...(prefs || {}),
+          };
+        }
+      });
+
+    this.threadService.currentThreadConfig$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((config) => {
+        if (config) {
+          this.threadConfig = {
+            ...this.threadConfig,
+            ...(config || {}),
+          };
+        }
+      });
+
+    this.threadService.currentThreadLastSuccess$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((lastResponse) => {
+        if (lastResponse) {
+          this.lastResponse = lastResponse;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   onModelSelect = (event: Event) => {

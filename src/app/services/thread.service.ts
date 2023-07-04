@@ -50,6 +50,8 @@ export class ThreadService {
     `${this.threadPath(threadId)}/preferences`;
   private lastThreadErrorPath = (threadId: string) =>
     `${this.threadPath(threadId)}/lastError`;
+  private lastThreadSuccessPath = (threadId: string) =>
+    `${this.threadPath(threadId)}/lastSuccessResponse`;
 
   currentParamMap$ = new BehaviorSubject<ParamMap | null>(null);
   currentThreadId$ = this.currentParamMap$.pipe(
@@ -75,6 +77,18 @@ export class ThreadService {
   currentThreadConfig$ = this.currentThreadId$.pipe(
     filter((id) => !!id),
     switchMap((id) => this.threadConfig$(id!))
+  );
+  currentThreadMessages$ = this.currentThreadId$.pipe(
+    filter((id) => !!id),
+    switchMap((id) => this.threadMessages$(id!))
+  );
+  currentThreadLastError$ = this.currentThreadId$.pipe(
+    filter((id) => !!id),
+    switchMap((id) => this.lastThreadError$(id!))
+  );
+  currentThreadLastSuccess$ = this.currentThreadId$.pipe(
+    filter((id) => !!id),
+    switchMap((id) => this.lastThreadSuccess$(id!))
   );
 
   constructor(
@@ -135,10 +149,13 @@ export class ThreadService {
     );
 
   threadMetadata$ = (threadId: string) =>
-    objectVal<any>(ref(this.db, this.threadMetadataPath(threadId)));
+    objectVal<ThreadMetadata>(ref(this.db, this.threadMetadataPath(threadId)));
 
   lastThreadError$ = (threadId: string) =>
     objectVal<string>(ref(this.db, this.lastThreadErrorPath(threadId)));
+
+  lastThreadSuccess$ = (threadId: string) =>
+    objectVal<any>(ref(this.db, this.lastThreadSuccessPath(threadId)));
 
   createNewThread$ = () =>
     httpsCallableData<any>(this.functions, 'createNewChatThread')();
@@ -146,15 +163,20 @@ export class ThreadService {
   updateThreadConfig = (threadId: string, config: ThreadConfig) =>
     update(ref(this.db, this.threadConfigPath(threadId)), config);
 
+  updateCurrentThreadConfig = (config: ThreadConfig) =>
+    firstValueFrom(this.threadIdForSure$).then((threadId) =>
+      this.updateThreadConfig(threadId, config)
+    );
+
   updateThreadPrefs = (threadId: string, prefs: ThreadPrefs) =>
     update(ref(this.db, this.threadPreferencesPath(threadId)), prefs);
 
-  sendUserMessage = (threadId: string, content: string) => {
-    const messageRef = ref(this.db, this.threadMessagesPath(threadId));
-    return push(messageRef, { role: 'user', content });
-  };
+  updateCurrentThreadPrefs = (prefs: ThreadPrefs) =>
+    firstValueFrom(this.threadIdForSure$).then((threadId) =>
+      this.updateThreadPrefs(threadId, prefs)
+    );
 
-  sendUserMessageX = async (content: string) => {
+  sendUserMessage = async (content: string) => {
     const threadId = await firstValueFrom(this.threadIdForSure$);
     const messageRef = ref(this.db, this.threadMessagesPath(threadId));
 
@@ -170,11 +192,26 @@ export class ThreadService {
       content: message,
     });
 
+  updateCurrentThreadMessage = async (messageId: string, message: string) => {
+    const threadId = await firstValueFrom(this.threadIdForSure$);
+    return this.updateThreadMessage(threadId!, messageId, message);
+  };
+
   deleteThreadMessage = (threadId: string, messageId: string) =>
     set(ref(this.db, this.threadMessagePath(threadId, messageId)), null);
 
+  deleteCurrentThreadMessage = async (messageId: string) => {
+    const threadId = await firstValueFrom(this.threadIdForSure$);
+    return this.deleteThreadMessage(threadId!, messageId);
+  };
+
   renameThread = (threadId: string, name: string | null) =>
     httpsCallable(this.functions, 'renameChatThread')({ threadId, name });
+
+  renameCurrentThread = async (name: string | null) => {
+    const threadId = await firstValueFrom(this.threadIdForSure$);
+    return this.renameThread(threadId!, name);
+  };
 
   submitThreadToAi = (threadId: string) =>
     httpsCallable(this.functions, 'submitChatThread')({ threadId });
@@ -186,6 +223,11 @@ export class ThreadService {
 
   deleteThread = (threadId: string) =>
     remove(ref(this.db, this.threadPath(threadId)));
+
+  deleteCurrentThread = async () => {
+    const threadId = await firstValueFrom(this.threadIdForSure$);
+    return this.deleteThread(threadId!);
+  };
 
   availableModels$ = () =>
     this.httpClient.get<OpenaiModel[]>(

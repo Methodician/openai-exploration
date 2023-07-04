@@ -48,7 +48,7 @@ export class ThreadFooterComponent {
   submitThread = async () => this.threadService.submitCurrentThread();
 
   sendMessage = async () => {
-    await this.threadService.sendUserMessageX(this.promptText);
+    await this.threadService.sendUserMessage(this.promptText);
     this.promptText = '';
 
     if (this.preferences?.shouldAutoSubmit) {
