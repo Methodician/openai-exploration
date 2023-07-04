@@ -11,6 +11,7 @@ import { HeaderService } from 'src/app/services/header.service';
 import { ThreadService } from 'src/app/services/thread.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ThreadPreferencesDialogComponent } from '../dialogs/thread-preferences-dialog/thread-preferences-dialog.component';
+import { FooterService } from 'src/app/services/footer.service';
 
 @Component({
   selector: 'app-thread',
@@ -33,6 +34,7 @@ export class ThreadComponent implements OnInit {
   threadMaxTokens$ = new Subject<number>();
 
   constructor(
+    private footerService: FooterService,
     private headerService: HeaderService,
     private threadService: ThreadService,
     private activeRoute: ActivatedRoute,
@@ -41,6 +43,7 @@ export class ThreadComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.footerService.setFooter('THREAD');
     this.headerService.isTitleClickable$.next(true);
     this.headerService.isThereOtherStuff$.next(true);
     this.activeRoute.params
@@ -121,6 +124,7 @@ export class ThreadComponent implements OnInit {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.footerService.setFooter('NONE');
     this.headerService.isTitleClickable$.next(false);
     this.headerService.setHeaderText('AI Power User');
     this.headerService.isThereOtherStuff$.next(false);
