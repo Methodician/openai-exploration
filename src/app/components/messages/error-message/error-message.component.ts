@@ -16,9 +16,7 @@ export class ErrorMessageComponent {
 
   ngAfterViewInit() {
     if (!this.threadId) throw new Error('No thread ID provided');
-    console.log(this.threadId);
     this.threadService.lastThreadError$(this.threadId).subscribe((error) => {
-      console.log('error', error);
       if (!error) return;
       this.error$.next(error);
     });

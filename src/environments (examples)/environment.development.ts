@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  shouldUseEmulateors: true,
   firebase: {
     projectId: 'openai-exploration-9d32c',
     appId: '1:192519951060:web:686dd16ce88c4c131b6141',

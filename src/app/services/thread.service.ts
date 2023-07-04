@@ -82,7 +82,6 @@ export class ThreadService {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    this.currentThreadId$.subscribe(console.log);
     this.watchRouterNavigationEnd();
     setTimeout(() => {
       // For some reason this has to be pushed down callstack

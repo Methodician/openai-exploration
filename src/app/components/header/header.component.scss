@@ -4,7 +4,7 @@ mat-toolbar {
 
   .header-text {
     max-width: calc(100vw - 100px);
-    overflow: scroll;
+    overflow: auto;
     display: flex;
     justify-content: center;
     align-items: center;

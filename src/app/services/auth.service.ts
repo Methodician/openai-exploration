@@ -27,7 +27,7 @@ export class AuthService {
       if (result) {
         signInWithEmailAndPassword(this.auth, result.email, result.password)
           .then((credentials) => {
-            console.log(credentials.user.uid);
+            console.log('signed in');
           })
           .catch((err) => {
             if (err.code === 'auth/user-not-found') {

@@ -93,24 +93,24 @@ import { ThreadMessagesComponent } from './components/thread-messages/thread-mes
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => {
       const auth = getAuth();
-      // if (!environment.production) {
-      //   connectAuthEmulator(auth, 'http://localhost:9099');
-      // }
+      if (environment.shouldUseEmulateors) {
+        connectAuthEmulator(auth, 'http://localhost:9099');
+      }
       return auth;
     }),
     provideDatabase(() => {
       const db = getDatabase();
-      // if (!environment.production) {
-      //   connectDatabaseEmulator(db, 'localhost', 9000);
-      // }
+      if (environment.shouldUseEmulateors) {
+        connectDatabaseEmulator(db, 'localhost', 9000);
+      }
       return db;
     }),
     provideFirestore(() => getFirestore()),
     provideFunctions(() => {
       const functions = getFunctions();
-      // if (!environment.production) {
-      //   connectFunctionsEmulator(functions, 'localhost', 5001);
-      // }
+      if (environment.shouldUseEmulateors) {
+        connectFunctionsEmulator(functions, 'localhost', 5001);
+      }
       return functions;
     }),
     provideMessaging(() => getMessaging()),
