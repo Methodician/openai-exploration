@@ -22,10 +22,20 @@
   </div>
 </div>
 <div class="prompt-actions">
-  <button mat-icon-button color="accent" (click)="sendMessage()">
+  <button
+    matTooltip="Use this if you have send on enter disabled"
+    mat-icon-button
+    color="accent"
+    (click)="sendMessage()"
+  >
     <mat-icon>send</mat-icon>
   </button>
-  <button mat-icon-button color="accent" (click)="submitThread()">
+  <button
+    matTooltip="Force the AI to process the context at any point"
+    mat-icon-button
+    color="accent"
+    (click)="submitThread()"
+  >
     <mat-icon>cloud_sync</mat-icon>
   </button>
 </div>

@@ -50,6 +50,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 // progress spinner
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+// tooltip
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Internal
 import { AppRoutingModule } from './app-routing.module';
@@ -129,6 +131,7 @@ import { FooterContainerComponent } from './components/footer/footer-container/f
     MatSliderModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   providers: [
     {
