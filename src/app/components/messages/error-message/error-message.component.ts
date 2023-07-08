@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Component, inject } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { ThreadService } from 'src/app/services/thread.service';
 
 @Component({
@@ -8,19 +8,16 @@ import { ThreadService } from 'src/app/services/thread.service';
   styleUrls: ['./error-message.component.scss'],
 })
 export class ErrorMessageComponent {
-  @Input() threadId?: string;
-
-  error$ = new Subject<any>();
-
-  constructor(private threadService: ThreadService) {}
+  private unsubscribe$ = new Subject<void>();
+  private threadService = inject(ThreadService);
+  error: any;
 
   ngAfterViewInit() {
-    if (!this.threadId) throw new Error('No thread ID provided');
-    console.log(this.threadId);
-    this.threadService.lastThreadError$(this.threadId).subscribe((error) => {
-      console.log('error', error);
-      if (!error) return;
-      this.error$.next(error);
-    });
+    this.threadService.currentThreadLastError$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((error) => {
+        if (!error) return;
+        this.error = error;
+      });
   }
 }

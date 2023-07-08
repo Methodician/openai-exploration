@@ -1,0 +1,29 @@
+:host {
+  background-color: gray;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  .left-part {
+    .metadata {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      padding: 3px 0 0;
+    }
+    .input-container {
+      display: flex;
+      flex-direction: row;
+      padding: 0 5px 0 10px;
+
+      mat-form-field {
+        flex: 1;
+      }
+    }
+  }
+  .prompt-actions {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}

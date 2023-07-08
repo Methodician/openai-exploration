@@ -64,6 +64,9 @@ import { MessageComponent } from './components/messages/message/message.componen
 import { ErrorMessageComponent } from './components/messages/error-message/error-message.component';
 import { LoadingMessageComponent } from './components/messages/loading-message/loading-message.component';
 import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin-dialog.component';
+import { ThreadFooterComponent } from './components/footer/thread-footer/thread-footer.component';
+import { ThreadMessagesComponent } from './components/thread-messages/thread-messages.component';
+import { FooterContainerComponent } from './components/footer/footer-container/footer-container.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +80,9 @@ import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin
     ErrorMessageComponent,
     LoadingMessageComponent,
     SigninDialogComponent,
+    ThreadFooterComponent,
+    ThreadMessagesComponent,
+    FooterContainerComponent,
   ],
   imports: [
     BrowserModule,
@@ -89,14 +95,14 @@ import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => {
       const auth = getAuth();
-      if (!environment.production) {
+      if (environment.shouldUseEmulateors) {
         connectAuthEmulator(auth, 'http://localhost:9099');
       }
       return auth;
     }),
     provideDatabase(() => {
       const db = getDatabase();
-      if (!environment.production) {
+      if (environment.shouldUseEmulateors) {
         connectDatabaseEmulator(db, 'localhost', 9000);
       }
       return db;
@@ -104,7 +110,7 @@ import { SigninDialogComponent } from './components/dialogs/signin-dialog/signin
     provideFirestore(() => getFirestore()),
     provideFunctions(() => {
       const functions = getFunctions();
-      if (!environment.production) {
+      if (environment.shouldUseEmulateors) {
         connectFunctionsEmulator(functions, 'localhost', 5001);
       }
       return functions;

@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Subject, takeUntil } from 'rxjs';
 import { ThreadConfig, ThreadPrefs } from 'src/app/models/shared';
 import { ThreadService } from 'src/app/services/thread.service';
 
@@ -14,8 +15,8 @@ interface ModelSelection {
   styleUrls: ['./thread-preferences-dialog.component.scss'],
 })
 export class ThreadPreferencesDialogComponent {
+  private unsubscribe$ = new Subject<void>();
   // TODO: break this down into multiple components. Could be in a parent "otherStuffDialog" idunno...
-  thread$ = this.threadService.thread$(this.data.threadId);
   threadPrefs: ThreadPrefs = {
     shouldAutoSubmit: false,
     shouldSendOnEnter: true,
@@ -35,26 +36,20 @@ export class ThreadPreferencesDialogComponent {
   // Note: this would need to be updated manually if the available models change
   models: ModelSelection[] = [
     { value: 'gpt-4', viewValue: 'GPT-4' },
-    { value: 'gpt-4-0314', viewValue: 'GPT-4 (3/14)' },
     { value: 'gpt-4-32k', viewValue: 'GPT-4 (32k)' },
-    { value: 'gpt-4-32k-0314', viewValue: 'GPT-4 (32k, 3/14)' },
     { value: 'gpt-3.5-turbo', viewValue: 'GPT-3.5 Turbo' },
-    { value: 'gpt-3.5-turbo-0301', viewValue: 'GPT-3.5 Turbo (3/1)' },
+    { value: 'gpt-3.5-turbo-16k', viewValue: 'GPT-3.5 Turbo (16k)' },
   ];
   get maxTokens() {
     switch (this.threadConfig.model) {
       case 'gpt-4':
         return 8192;
-      case 'gpt-4-0314':
-        return 8192;
       case 'gpt-4-32k':
-        return 32768;
-      case 'gpt-4-32k-0314':
         return 32768;
       case 'gpt-3.5-turbo':
         return 4097;
-      case 'gpt-3.5-turbo-0301':
-        return 4097;
+      case 'gpt-3.5-turbo-16k':
+        return 16384;
       default:
         return 4097;
     }
@@ -68,23 +63,46 @@ export class ThreadPreferencesDialogComponent {
 
   ngOnInit(): void {
     this.threadService.availableModels$().subscribe((models) => {
+      const gptOnly = models.filter((m) => m.id.includes('gpt'));
+      console.log(gptOnly);
       const modelIds = models.filter((m) => !!m.id).map((m) => m.id);
       this.models = this.models.filter((m) => modelIds.includes(m.value));
     });
 
-    this.thread$.subscribe((thread) => {
-      if (thread) {
-        this.threadPrefs = {
-          ...this.threadPrefs,
-          ...(thread.preferences || {}),
-        };
-        this.threadConfig = {
-          ...this.threadConfig,
-          ...(thread.config || {}),
-        };
-        this.lastResponse = thread.lastSuccessResponse;
-      }
-    });
+    this.threadService.currentThreadPreferences$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((prefs) => {
+        if (prefs) {
+          this.threadPrefs = {
+            ...this.threadPrefs,
+            ...(prefs || {}),
+          };
+        }
+      });
+
+    this.threadService.currentThreadConfig$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((config) => {
+        if (config) {
+          this.threadConfig = {
+            ...this.threadConfig,
+            ...(config || {}),
+          };
+        }
+      });
+
+    this.threadService.currentThreadLastSuccess$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((lastResponse) => {
+        if (lastResponse) {
+          this.lastResponse = lastResponse;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   onModelSelect = (event: Event) => {

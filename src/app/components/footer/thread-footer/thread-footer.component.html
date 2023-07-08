@@ -1,0 +1,31 @@
+<div class="left-part">
+  <div class="metadata">
+    <span
+      >Estimated tokens used: {{ metadata?.tokenCount }} of
+      {{ config?.max_tokens }}</span
+    >
+  </div>
+  <div class="input-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Enter a prompt</mat-label>
+      <textarea
+        [(ngModel)]="promptText"
+        (keydown.enter)="onEnterKeyDown(toKeyboardEvent($event))"
+        cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        matInput
+        tabindex="0"
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="25"
+      ></textarea>
+    </mat-form-field>
+  </div>
+</div>
+<div class="prompt-actions">
+  <button mat-icon-button color="accent" (click)="sendMessage()">
+    <mat-icon>send</mat-icon>
+  </button>
+  <button mat-icon-button color="accent" (click)="submitThread()">
+    <mat-icon>cloud_sync</mat-icon>
+  </button>
+</div>

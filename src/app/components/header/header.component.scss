@@ -1,8 +1,10 @@
 mat-toolbar {
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-columns: 50px 1fr 50px;
 
   .header-text {
+    max-width: calc(100vw - 100px);
+    overflow: auto;
     display: flex;
     justify-content: center;
     align-items: center;
